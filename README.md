@@ -1,1 +1,1 @@
-Java Project : MagicCard game
+Java Project : MagikCard game
