@@ -12,7 +12,8 @@ public class ImageComponent extends JComponent {
     private BufferedImage image;
     private int width;
     private int height;
-
+    private int xCoor = 0;
+    private int yCoor = 0;
     public ImageComponent(String imagePath) {
         try {
             image = ImageIO.read(new File(imagePath));
@@ -32,16 +33,27 @@ public class ImageComponent extends JComponent {
             e.printStackTrace();
         }
     }
-
+    public ImageComponent(String imagePath, int width, int height, int x, int y) {
+        this.width = width;
+        this.height = height;
+        this.xCoor = x;
+        this.yCoor = y;
+        try {
+            image = ImageIO.read(new File(imagePath));
+//            setBounds(x, y, width, height); // Set bounds for the component
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+ 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (image != null) {
-            g.drawImage(image, 0, 0, width, height, this);
+            g.drawImage(image, this.xCoor, this.yCoor, width, height, this);
         }
     }
-
-    @Override
+     @Override
     public Dimension getPreferredSize() {
         return new Dimension(width, height);
     }

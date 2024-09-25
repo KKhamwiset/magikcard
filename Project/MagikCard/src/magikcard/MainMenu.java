@@ -27,7 +27,7 @@ public class MainMenu extends BackgroundPanel {
         titleLabel.setFont(new Font("2005_iannnnnGMM", Font.PLAIN, 100));
         titleLabel.setForeground(Color.WHITE);
         titlePanel.setOpaque(false);
-        ImageComponent logo = new ImageComponent("..\\Assets\\image1_0-removebg-preview.png", 250, 300);
+        ImageComponent logo = new ImageComponent("..\\Assets\\Image\\Icon\\logo.png", 250, 300);
         titlePanel.add(logo);
         titlePanel.add(titleLabel);
         titlePanel.add(Box.createHorizontalStrut(400));
@@ -49,14 +49,6 @@ public class MainMenu extends BackgroundPanel {
         this.add(titlePanel);
         this.add(buttonPanel);
         this.setVerticalSpace(2);
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
     }
     
     protected void setVerticalSpace(int n) {

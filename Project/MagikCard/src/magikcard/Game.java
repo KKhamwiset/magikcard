@@ -13,12 +13,12 @@ public class Game {
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         mainMenu = new MainMenu(this);
-        gameScreen = new GameScreen(this);
         frame.add(mainMenu);
         frame.setVisible(true);
     }
 
     public void switchToGameScreen() {
+        gameScreen = new GameScreen(this);
         frame.remove(mainMenu);
         frame.add(gameScreen);
         gameScreen.playSong();

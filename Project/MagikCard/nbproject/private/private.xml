@@ -3,11 +3,22 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/F:/WORK_Year_2/Java/Project/MagikCard/src/magikcard/Game.java</file>
-            <file>file:/F:/WORK_Year_2/Java/Project/MagikCard/src/magikcard/BackgroundMusic.java</file>
-            <file>file:/F:/WORK_Year_2/Java/Project/MagikCard/src/magikcard/GameScreen.java</file>
-            <file>file:/F:/WORK_Year_2/Java/Project/MagikCard/src/magikcard/Card.java</file>
-            <file>file:/F:/WORK_Year_2/Java/Project/MagikCard/src/magikcard/ImageButton.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/BackgroundMusic.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/BackgroundPanel.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/Animation.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/Game.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/GameContext.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/PlayerAction.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/ImageButton.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/ImageComponent.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/MonsterAction.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/Monster.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/Player.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/MainMenu.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/Card.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/GameScreen.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/magikcard/GameState.java</file>
+            <file>file:/F:/WORK_Year_2/Java/MagikCard/src/entities/EntitiesDetails.java</file>
         </group>
     </open-files>
 </project-private>
