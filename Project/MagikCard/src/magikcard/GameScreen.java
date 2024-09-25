@@ -198,7 +198,7 @@ public class GameScreen extends JPanel {
         statusPanel.repaint();
     }
     protected void playSong(){
-        bgMusic.playMusic("..\\Music\\Revived Witch - Battle Dazzling.wav");
+        bgMusic.playMusic("..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav");
         bgMusic.setVolume(0.825f);
     }
     protected void stopSong(){

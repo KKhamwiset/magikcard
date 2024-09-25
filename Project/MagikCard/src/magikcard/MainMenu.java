@@ -57,7 +57,7 @@ public class MainMenu extends BackgroundPanel {
         }
     }
     protected void playSong(){
-        bgMusic.playMusic("..\\Music\\Revived Witch - Main Theme ( Soundtrack Music Video Game ) - Peaceful Sounds Extended 10 Minutes.wav");
+        bgMusic.playMusic("..\\Music\\Revived Witch - Main Theme ( Soundtrack Music Video Game ).wav");
     }
     protected void stopSong(){
         bgMusic.stopMusic();
