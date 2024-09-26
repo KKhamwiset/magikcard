@@ -59,6 +59,9 @@ public class GameScreen extends JPanel {
     private JProgressBar playerHealthBar;
     private JProgressBar monsterHealthBar;
     private JLayeredPane layeredPane;
+    private Timer updateTimer;
+    private int previousPlayerHP;
+    private int previousMonsterHP;
     public GameState gameResult = null;
     public GameState currentState;
     public GameContext context;
@@ -113,31 +116,40 @@ public class GameScreen extends JPanel {
         layeredPane.add(mainFrame, JLayeredPane.DEFAULT_LAYER);
         createOverlayPanel();
         
-        Timer HealthBarTimer = new Timer(100, new ActionListener() {
+        updateTimer = new Timer(200, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateHealthBars();
+                boolean needsUpdate = false;
+                   System.out.println("Update");
+                if (playerHealthBar.getValue() != character.getHP()) {
+                    playerHealthBar.setValue(character.getHP());
+                    needsUpdate = true;
+                }
+                if (monsterHealthBar.getValue() != enemies.getHP()) {
+                    monsterHealthBar.setValue(enemies.getHP());
+                    needsUpdate = true;
+                }
+
+                if (previousPlayerHP != character.getHP()) {
+                    updateStatusLabels(character);
+                    previousPlayerHP = character.getHP(); 
+                    needsUpdate = true;
+                }
+                if (needsUpdate) {
+                    repaintstatusPanel();
+                }
+                
                 if (context.getCurrentMonster().getHP() <= 0 || enemies.getHP() <= 0) {
-                    ((Timer) e.getSource()).stop(); 
+                    ((Timer) e.getSource()).stop();
                 }
             }
         });
-        HealthBarTimer.start();
-        
-        Timer StatusPanelTimer = new Timer(100, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateStatusLabels(character);
-                if (context.getCurrentMonster().getHP() <= 0 || enemies.getHP() <= 0) {
-                    ((Timer) e.getSource()).stop(); 
-                }
-            }
-        });
-        StatusPanelTimer.start();
-        
+        updateTimer.start();
+        HPCheck(context);
         this.add(layeredPane, BorderLayout.CENTER);
         currentState = GameState.START;
     }
+    
 
     private void createOverlayPanel() {
         overlayPanel = new JPanel(null);
@@ -354,7 +366,29 @@ public class GameScreen extends JPanel {
     public int maximumCard(){
         return rows * cols;
     }
-    
+
+    public void HPCheck(GameContext context) {
+        Timer hpCheckTimer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean playerAlive = context.getPlayer().getHP() > 0;
+                boolean monsterAlive = context.getCurrentMonster().getHP() > 0;
+
+                if (!playerAlive && context.getCurrentGame().gameResult != GameState.LOSE) {
+                    context.getCurrentGame().gameResult = GameState.LOSE;
+                    context.getCurrentGame().drawScreen(context.getCurrentGame());
+                    ((Timer) e.getSource()).stop(); 
+                } else if (!monsterAlive && context.getCurrentGame().gameResult != GameState.WIN) {
+                    context.getCurrentGame().gameResult = GameState.WIN;
+                    context.getCurrentGame().drawScreen(context.getCurrentGame());
+                    ((Timer) e.getSource()).stop(); 
+                }
+            }
+        });
+        hpCheckTimer.start();
+    }
+
+
     public void updateStatusLabels(Player player) {
         atkLabel.setText("ATK: " + player.getATK());
         hpLabel.setText("HP: " + (player.getHP() < 0 ? 0 : player.getHP()));
@@ -363,6 +397,7 @@ public class GameScreen extends JPanel {
         repaintstatusPanel();
     }
     public void updateHealthBars() {
+        System.out.println("Updating");
         playerHealthBar.setValue(character.getHP());
         monsterHealthBar.setValue(enemies.getHP());
         playerHealthBar.repaint();
@@ -381,5 +416,6 @@ public class GameScreen extends JPanel {
     protected void stopSong(){
         bgMusic.stopMusic();
     }
+    
     
 }
