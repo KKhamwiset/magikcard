@@ -1,5 +1,6 @@
 package magikcard;
 
+import javax.swing.JPanel;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -14,24 +15,16 @@ public class ImageComponent extends JComponent {
     private int height;
     private int xCoor = 0;
     private int yCoor = 0;
+    
     public ImageComponent(String imagePath) {
-        try {
-            image = ImageIO.read(new File(imagePath));
-            this.width = image.getWidth();
-            this.height = image.getHeight();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this(imagePath, null);
     }
-
+    public ImageComponent(String imagePath,JPanel parentPanel) {
+        this(imagePath,parentPanel.getWidth(),parentPanel.getHeight());
+    }
+    
     public ImageComponent(String imagePath, int width, int height) {
-        this.width = width;
-        this.height = height;
-        try {
-            image = ImageIO.read(new File(imagePath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this(imagePath,width,height,0,0);
     }
     public ImageComponent(String imagePath, int width, int height, int x, int y) {
         this.width = width;
@@ -40,7 +33,6 @@ public class ImageComponent extends JComponent {
         this.yCoor = y;
         try {
             image = ImageIO.read(new File(imagePath));
-//            setBounds(x, y, width, height); // Set bounds for the component
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,7 +42,7 @@ public class ImageComponent extends JComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (image != null) {
-            g.drawImage(image, this.xCoor, this.yCoor, width, height, this);
+            g.drawImage(this.image, this.xCoor, this.yCoor, this.width, this.height, this);
         }
     }
      @Override

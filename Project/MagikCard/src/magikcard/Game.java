@@ -25,7 +25,14 @@ public class Game {
         frame.revalidate();
         frame.repaint();
     }
-
+    public void restartGameScreen(JPanel currentScreen){
+        gameScreen = new GameScreen(this);
+        frame.remove(currentScreen);
+        frame.add(gameScreen);
+        gameScreen.playSong();
+        frame.revalidate();
+        frame.repaint();
+    }
     public void switchToMainMenu(JPanel currentScreen) {
         frame.remove(currentScreen); 
         frame.add(mainMenu);
