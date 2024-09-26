@@ -4,6 +4,7 @@ import entities.Player;
 import entities.Monster;
 import magikcard.ImageButton;
 import magikcard.GameScreen;
+import magikcard.GameState;
 import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,16 +12,16 @@ import java.io.File;
 import java.awt.event.*;
 
 public class Card {
-    
     private String imagePath;
-    private int cardIndex;
     private String cardName;
+    private int cardIndex;
     private int maxCards;
+    private boolean isFaceUp;
     private ArrayList<String> cardsName;
     private ArrayList<Card> cards;
-    private boolean checkingMatch = false;
     private ArrayList<File> fileList;
-    private String folderPath = "..\\Assets\\card";
+    private String backCard = "back";
+    private String folderPath = "..\\Assets\\Card";
     private String[] temp = {
         "darkness",
         "double",
@@ -31,11 +32,8 @@ public class Card {
         "lighting",
         "metal",
         "psyhic",
-        "water"
-    };
+        "water" };
     
-    private String backCard = "back";
-    private boolean isFaceUp;
     public Card(String imagePath, boolean isCard, int cardIndex, String cardName, ImageButton cardIcon) {
         this.imagePath = imagePath;
         this.isFaceUp = false;
@@ -125,6 +123,50 @@ public class Card {
     public boolean isMatch(Card otherCard) {
         return this.getCardName().equals(otherCard.getCardName());
     }
+    public void actionsBaseOnCard(String cardName, GameContext context) {
+        Player player = context.getPlayer();
+        Monster monster = context.getCurrentMonster();
+        GameState gameResult = context.getCurrentGame().gameResult;
+        switch (cardName) {
+            case "darkness": 
+                context.getPlayer().Attack(context.getCurrentMonster());
+                break;
+            case "fairy": 
+                break;
+            case "grass": 
+                break;
+            case "double": 
+                break;
+            default: 
+                break;
+        }
+    }
+    
+    public void HPCheck(GameContext context){
+        Timer PlayerhpCheckTimer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (context.getPlayer().getHP() <= 0 && context.getCurrentGame().gameResult != GameState.LOSE) {
+                    context.getCurrentGame().gameResult = GameState.LOSE;
+                    context.getCurrentGame().drawScreen(context.getCurrentGame());
+                    ((Timer) e.getSource()).stop(); 
+                }
+            }
+        });
+        
+        Timer MonsterhpCheckTimer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (context.getCurrentMonster().getHP() <= 0 && context.getCurrentGame().gameResult != GameState.WIN) {
+                    context.getCurrentGame().gameResult = GameState.WIN;
+                    context.getCurrentGame().drawScreen(context.getCurrentGame());
+                    ((Timer) e.getSource()).stop(); 
+                }
+            }
+        });
+        PlayerhpCheckTimer.start();
+        MonsterhpCheckTimer.start();
+    }
     public void handleCardClick(ImageButton cardIcon, int width, int height, ArrayList<Card> flippedCards, ArrayList<ImageButton> flippedButtons,
             GameContext context) {
         if (flippedCards.size() >= 2 || flippedCards.contains(this) || this.isFaceUp()) {
@@ -136,7 +178,6 @@ public class Card {
         flippedCards.add(this);
         cardIcon.setImage(getImagePath(), width, height);
         if (flippedCards.size() == 2) {
-            checkingMatch = true;
             Timer timer = new Timer(250, e -> {
                 Card firstCard = flippedCards.get(0);
                 Card secondCard = flippedCards.get(1);
@@ -144,7 +185,8 @@ public class Card {
                 ImageButton secondButton = flippedButtons.get(1);
                 if (firstCard.isMatch(secondCard)) {
                     context.getCurrentGame().setMatch(context.getCurrentGame().getcurrentMatch() + 1);
-                    context.getPlayer().increaseStats();
+//                    actionsBaseOnCard(firstCard.getCardName(),context);
+                    context.getPlayer().Attack(context.getCurrentMonster());
                     context.getCurrentGame().updateStatusLabels(context.getPlayer());
                     context.getCurrentGame().repaintstatusPanel();;
                     if (context.getCurrentGame().getcurrentMatch() == maxPair) {
@@ -155,9 +197,9 @@ public class Card {
                         timerRest.setRepeats(false);
                         timerRest.start();
                     }
-                } else {
+                } 
+                else {
                     context.getCurrentMonster().Attack(context.getPlayer());
-                    context.getCurrentGame().updateStatusLabels(context.getPlayer());
                     firstCard.setFaceUp(false);
                     secondCard.setFaceUp(false);
                     firstButton.setImage(firstCard.getBackCardImagePath(folderPath), width, height);
@@ -165,11 +207,12 @@ public class Card {
                 }
                 flippedCards.clear();
                 flippedButtons.clear();
-                checkingMatch = false; 
+                
             });
 
             timer.setRepeats(false);
             timer.start();
         }
+        HPCheck(context);
     }
 }

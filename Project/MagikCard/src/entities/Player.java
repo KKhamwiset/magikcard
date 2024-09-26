@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package entities;
+
 import magikcard.ImageComponent;
 import javax.swing.*;
 
-/**
- *
- * @author KKhamvised
- */
+
 public class Player extends EntitiesDetails implements PlayerAction {
     public Player(String ImagePath,JPanel currentPanel){
         ImageComponent playerModel = new ImageComponent(ImagePath, 125, 175, 150, (currentPanel.getHeight() / 2) + 20);
@@ -20,6 +14,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.X = 150;
         this.Y = (currentPanel.getHeight() / 2) + 20;
         currentPanel.add(playerModel);
+        regenHP();
     }
     @Override
     public void setHP(int newHP) {
@@ -44,7 +39,17 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.REGEN = newREGEN;
         System.out.println("Setting REGEN to: " + newREGEN);
     }
-
+    @Override
+    public void regenHP(){
+        Timer regenHP = new Timer(5000, e ->{
+            this.setHP(this.HP + this.REGEN);
+            if (this.HP <= 0){
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        regenHP.start();
+    }
+    
     @Override
     public void Attack(Monster monster) {
         monster.setHP(monster.getHP() - this.ATK); 

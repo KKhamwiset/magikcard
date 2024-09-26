@@ -15,4 +15,5 @@ public abstract class EntitiesDetails {
     public abstract void setATK(int newATK);
     public abstract void setDEF(int newDEF);
     public abstract void setREGEN(int newREGEN);
+    public abstract void regenHP();
 }

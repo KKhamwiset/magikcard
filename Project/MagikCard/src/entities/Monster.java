@@ -1,6 +1,7 @@
 package entities;
 
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import magikcard.ImageComponent;
 
 public class Monster extends EntitiesDetails implements MonsterAction {
@@ -10,74 +11,64 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         this.ATK = atk;
         this.DEF = def;
         this.REGEN = regen; 
-        ImageComponent monsterModel = new ImageComponent(imagePath, 200, 175,currentPanel.getWidth() * 2, (currentPanel.getHeight() / 2) + 20);
+        ImageComponent monsterModel = new ImageComponent(imagePath, 200, 175,( currentPanel.getWidth() * 2 ) + 150, (currentPanel.getHeight() / 2) + 20);
         currentPanel.add(monsterModel);
+        regenHP();
     }
 
     @Override
     public void setHP(int newHP) {
         this.HP = newHP;
-        System.out.println("Setting HP to: " + newHP);
+        System.out.println("Monster HP : " + newHP);
     }
 
     @Override
     public void setATK(int newATK) {
         this.ATK = newATK;
-        System.out.println("Setting ATK to: " + newATK);
+        System.out.println("Monster ATK : " + newATK);
     }
 
     @Override
     public void setDEF(int newDEF) {
         this.DEF = newDEF;
-        System.out.println("Setting DEF to: " + newDEF);
+        System.out.println("Monster DEF : " + newDEF);
     }
 
     @Override
     public void setREGEN(int newREGEN) {
         this.REGEN = newREGEN;
-        System.out.println("Setting REGEN to: " + newREGEN);
+        System.out.println("Monster REGEN : " + newREGEN);
+    }
+    public void regenHP(){
+        Timer regenHP = new Timer(5000, e ->{
+            this.setHP(this.HP + this.REGEN);
+            if (this.HP <= 0){
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        regenHP.start();
+    }
+    @Override
+        public void Attack(Player player) {
+            System.out.println("Monster is attacking!");
+            player.setHP(player.getHP() - this.ATK); 
+        }
+
+    @Override
+        public void takingDamage() {
+            System.out.println("Monster is taking heavy damage but still standing strong!");
     }
     
-    public void Attack(Player player) {
-        System.out.println("Monster is attacking!");
-        player.setHP(player.getHP() - this.ATK); 
-    }
-
-    public void takingDamage() {
-        System.out.println("Monster is taking damage!");
-    }
 
     public static class NormalMonster extends Monster {
         public NormalMonster(String imagePath, JPanel currentPanel) {
-            super(imagePath, 100, 20, currentPanel.getWidth() - 100, 5, currentPanel);
-        }
-
-        @Override
-        public void Attack(Player player) {
-            player.setHP(player.getHP() - this.ATK); 
-            System.out.println("Normal monster is attacking!");
-        }
-
-        @Override
-        public void takingDamage() {
-            System.out.println("Normal monster is taking damage!");
+            super(imagePath, 1000, 100, 100, 5, currentPanel);
         }
     }
 
-    public static class BossMonster extends Monster {
+    public static class BossMonster extends Monster{
         public BossMonster(String imagePath, JPanel currentPanel) {
-            super(imagePath, 500, 50, 30, 10, currentPanel);
-        }
-
-        @Override
-        public void Attack(Player player) {
-            System.out.println("Boss monster is attacking!");
-            player.setHP(player.getHP() - this.ATK); 
-        }
-
-        @Override
-        public void takingDamage() {
-            System.out.println("Boss monster is taking heavy damage but still standing strong!");
+            super(imagePath, 2000, 200, 150, 10, currentPanel);
         }
     }
 }
