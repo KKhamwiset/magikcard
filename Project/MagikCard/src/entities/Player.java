@@ -7,7 +7,8 @@ import javax.swing.*;
 public class Player extends EntitiesDetails implements PlayerAction {
     public Player(String ImagePath,JPanel currentPanel){
         ImageComponent playerModel = new ImageComponent(ImagePath, 125, 175, 150, (currentPanel.getHeight() / 2) + 20);
-        this.HP = 1000;
+        this.MAXHP = 1000;
+        this.HP = MAXHP;
         this.DEF = 100;
         this.ATK = 100;
         this.REGEN = 5;
@@ -39,16 +40,6 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.REGEN = newREGEN;
         System.out.println("Setting REGEN to: " + newREGEN);
     }
-    @Override
-    public void regenHP(){
-        Timer regenHP = new Timer(5000, e ->{
-            this.setHP(this.HP + this.REGEN);
-            if (this.HP <= 0){
-                ((Timer) e.getSource()).stop();
-            }
-        });
-        regenHP.start();
-    }
     
     @Override
     public void Attack(Monster monster) {
@@ -59,6 +50,16 @@ public class Player extends EntitiesDetails implements PlayerAction {
     @Override
     public void takingDamage() {
         System.out.println("Player is taking damage!");
+    }
+    @Override
+    public void regenHP(){
+        Timer regenHP = new Timer(5000, e ->{
+            this.setHP(this.HP + this.REGEN);
+            if (this.HP <= 0){
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        regenHP.start();
     }
     @Override
     public void increaseStats(){

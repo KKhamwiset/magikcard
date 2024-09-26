@@ -6,14 +6,15 @@ import magikcard.ImageComponent;
 
 public class Monster extends EntitiesDetails implements MonsterAction {
     
-    public Monster(String imagePath, int hp, int atk, int def, int regen, JPanel currentPanel) {
-        this.HP = hp;   
+    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanel) {
+        this.MAXHP = maxhp;
+        this.HP = MAXHP;   
         this.ATK = atk;
         this.DEF = def;
         this.REGEN = regen; 
         ImageComponent monsterModel = new ImageComponent(imagePath, 200, 175,( currentPanel.getWidth() * 2 ) + 150, (currentPanel.getHeight() / 2) + 20);
         currentPanel.add(monsterModel);
-        regenHP();
+        regenHP();  
     }
 
     @Override
@@ -39,15 +40,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         this.REGEN = newREGEN;
         System.out.println("Monster REGEN : " + newREGEN);
     }
-    public void regenHP(){
-        Timer regenHP = new Timer(5000, e ->{
-            this.setHP(this.HP + this.REGEN);
-            if (this.HP <= 0){
-                ((Timer) e.getSource()).stop();
-            }
-        });
-        regenHP.start();
-    }
+
     @Override
         public void Attack(Player player) {
             System.out.println("Monster is attacking!");
@@ -58,11 +51,21 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         public void takingDamage() {
             System.out.println("Monster is taking heavy damage but still standing strong!");
     }
+    @Override
+    public void regenHP(){
+        Timer regenHP = new Timer(5000, e ->{
+            this.setHP(this.HP + this.REGEN);
+            if (this.HP <= 0){
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        regenHP.start();
+    }
     
 
     public static class NormalMonster extends Monster {
         public NormalMonster(String imagePath, JPanel currentPanel) {
-            super(imagePath, 1000, 100, 100, 5, currentPanel);
+            super(imagePath, 1000, 10, 100, 5, currentPanel);
         }
     }
 
