@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 class topFrame extends BackgroundPanel {
 
@@ -58,10 +57,9 @@ public class GameScreen extends JPanel {
     private JPanel cardPanel;
     private JProgressBar playerHealthBar;
     private JProgressBar monsterHealthBar;
-    private JLayeredPane layeredPane;
     private Timer updateTimer;
-    private int previousPlayerHP;
-    private int previousMonsterHP;
+    private Font MainFont = FontLoader.loadFont("..\\Fonts\\2005_iannnnnGMM.ttf", 30f);
+    private Font OverlayFont = FontLoader.loadFont("..\\Fonts\\ZFTERMIN_.ttf", 64f);
     public GameState gameResult = null;
     public GameState currentState;
     public GameContext context;
@@ -74,18 +72,16 @@ public class GameScreen extends JPanel {
         this.game = game;
         this.setLayout(new BorderLayout());
         bgMusic = new BackgroundMusic();
+    
 
-
-        layeredPane = new JLayeredPane();
+        JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1200, 800));
-        
-
+    
         JPanel mainFrame = new JPanel();
         mainFrame.setLayout(new BoxLayout(mainFrame, BoxLayout.Y_AXIS));
-        mainFrame.setBounds(0, 0, 1200, 800);
-        
-
-        topFrame gameRender = new topFrame();
+    
+        BackgroundPanel gameRender = new topFrame();
+        gameRender.setLayout(new BoxLayout(gameRender, BoxLayout.Y_AXIS));
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
             game.switchToMainMenu(this);
@@ -95,13 +91,12 @@ public class GameScreen extends JPanel {
         buttonPanel.setOpaque(false);
         buttonPanel.add(backButton);
         gameRender.add(buttonPanel, BorderLayout.NORTH);
-        
+    
         BackgroundPanel bottomPanel = new bottomFrame();
         BackgroundPanel gamePlay = new bottomRightFrame();
         statusPanel = new bottomLeftFrame();
         cardPanel = new JPanel();
-        
-
+    
         setupFightingUI(gameRender);
         setupGameUI(gamePlay);
         setupStatusUI(statusPanel, character);
@@ -111,166 +106,160 @@ public class GameScreen extends JPanel {
         bottomPanel.add(gamePlay);
         mainFrame.add(gameRender);
         mainFrame.add(bottomPanel);
-        
- 
-        layeredPane.add(mainFrame, JLayeredPane.DEFAULT_LAYER);
-        createOverlayPanel();
-        
-        updateTimer = new Timer(200, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean needsUpdate = false;
-                   System.out.println("Update");
-                if (playerHealthBar.getValue() != character.getHP()) {
-                    playerHealthBar.setValue(character.getHP());
-                    needsUpdate = true;
-                }
-                if (monsterHealthBar.getValue() != enemies.getHP()) {
-                    monsterHealthBar.setValue(enemies.getHP());
-                    needsUpdate = true;
-                }
 
-                if (previousPlayerHP != character.getHP()) {
-                    updateStatusLabels(character);
-                    previousPlayerHP = character.getHP(); 
-                    needsUpdate = true;
-                }
-                if (needsUpdate) {
-                    repaintstatusPanel();
-                }
-                
-                if (context.getCurrentMonster().getHP() <= 0 || enemies.getHP() <= 0) {
-                    ((Timer) e.getSource()).stop();
-                }
-            }
-        });
-        updateTimer.start();
-        HPCheck(context);
+        mainFrame.setBounds(0, 0, 1200, 800);
+        layeredPane.add(mainFrame, JLayeredPane.DEFAULT_LAYER);
+        
+
+        createOverlayPanel();
+        overlayPanel.setBounds(0, 0, 1200, 800);
+        layeredPane.add(overlayPanel, JLayeredPane.PALETTE_LAYER);
         this.add(layeredPane, BorderLayout.CENTER);
+        HPBarCheck();
         currentState = GameState.START;
     }
     
-
     private void createOverlayPanel() {
-        overlayPanel = new JPanel(null);
-        overlayPanel.setVisible(false);
-        overlayPanel.setOpaque(false);
+        overlayPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (this.getBackground().getAlpha() > 0) {
+                    g.setColor(this.getBackground());
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            }
+        };
         overlayPanel.setBounds(0, 0, 1200, 800);
-
-        JPanel innerPanel = new JPanel(new GridBagLayout());
-        innerPanel.setOpaque(true);
-        innerPanel.setBackground(new Color(255, 255, 255, 100));
-        innerPanel.setBounds(0, 0, 1200, 800);
-
-
+        overlayPanel.setOpaque(false);
+        overlayPanel.setVisible(false);
+        overlayPanel.setBackground(new Color(0, 0, 0, 0));
+        overlayPanel.setLayout(new BoxLayout(overlayPanel, BoxLayout.Y_AXIS));
+    
+        JPanel labelPanel = new JPanel();
+        labelPanel.setOpaque(false);
+        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+    
         JLabel messageLabel = new JLabel("", SwingConstants.CENTER);
-        messageLabel.setFont(new Font("Arial", Font.BOLD, 48));
-        messageLabel.setForeground(Color.BLACK);
+        messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel messageLabel2 = new JLabel("", SwingConstants.CENTER);
+        messageLabel2.setAlignmentX(Component.CENTER_ALIGNMENT); 
 
-      
+        labelPanel.add(messageLabel);
+        labelPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        labelPanel.add(messageLabel2);
+        
+        labelPanel.setAlignmentX(Component.CENTER_ALIGNMENT); 
+    
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+    
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
             game.switchToMainMenu(this);
             resetCardUI();
             stopSong();
         }, 60, 60);
+    
         ImageButton restartButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\restart.png", e -> {
             game.restartGameScreen(this);
             stopSong();
         }, 60, 60);
-        
-        GridBagConstraints Label = new GridBagConstraints();
-        Label.gridx = 0;
-        Label.gridy = 0;
-        Label.insets = new Insets(0, 0, 20, 0);
-        Label.anchor = GridBagConstraints.CENTER;
-        Label.gridwidth = 2;
-        innerPanel.add(messageLabel, Label);
-        
-        GridBagConstraints Button1 = new GridBagConstraints();
-        Button1.gridx = 0;
-        Button1.gridy = 1;
-        Button1.anchor = GridBagConstraints.WEST;
-        
-        GridBagConstraints Button2 = new GridBagConstraints();
-        Button2.gridx = 1;
-        Button2.gridy = 1;
-        Button2.anchor = GridBagConstraints.EAST;
+    
+        buttonPanel.add(backButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(50, 0)));
+        buttonPanel.add(restartButton);
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT); 
 
-        
-        innerPanel.add(backButton, Button1);
-        innerPanel.add(restartButton, Button2);
-        
-        overlayPanel.add(innerPanel);
+        overlayPanel.add(Box.createVerticalGlue());
+        overlayPanel.add(Box.createVerticalGlue());
+        overlayPanel.add(labelPanel);
+        overlayPanel.add(Box.createRigidArea(new Dimension(0, 20))); 
+        overlayPanel.add(buttonPanel);
+        overlayPanel.add(Box.createVerticalGlue());
+    
         overlayPanel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) {
+                e.consume(); 
+            }
         });
-
-        layeredPane.add(overlayPanel, JLayeredPane.PALETTE_LAYER);
     }
-
-
-
-    public void showOverlay(boolean win) {
-  
-        JPanel innerPanel = (JPanel) overlayPanel.getComponent(0); 
-        JLabel messageLabel = (JLabel) innerPanel.getComponent(0);
-        messageLabel.setForeground(Color.WHITE);
-        if (win) {
-            innerPanel.setBackground(new Color(0, 255, 0, 90)); 
-            messageLabel.setText("You Win!");
-        } else {
-            innerPanel.setBackground(new Color(255, 0, 0, 90));
-            messageLabel.setText("You Lose!");
+    
+        public void showOverlay(boolean win) {
+            JPanel outerJLabel = (JPanel) overlayPanel.getComponent(2);
+            JLabel messageLabel = (JLabel) outerJLabel.getComponent(0);
+            JLabel messageLabel2 = (JLabel) outerJLabel.getComponent(2);
+        
+    
+            messageLabel.setFont(OverlayFont);
+            messageLabel.setForeground(Color.WHITE);
+            messageLabel2.setFont(OverlayFont);
+            messageLabel2.setForeground(Color.WHITE);
+        
+            if (win) {
+                overlayPanel.setBackground(new Color(10, 255, 10, 60));
+                messageLabel.setText("You Win!!!!");
+                messageLabel2.setText("Congratulations!");
+            } else {
+                overlayPanel.setBackground(new Color(255, 10, 10, 60));
+                messageLabel.setText("You Lose!");
+                messageLabel2.setText("Better luck next time!");
+            }
+        
+            overlayPanel.setVisible(true);
+            overlayPanel.revalidate();
+            overlayPanel.repaint();
         }
-
-        overlayPanel.setVisible(true);
-    }
+    
     public void hideOverlay() {
         overlayPanel.setVisible(false);
     }
 
-    public void drawScreen(JPanel parentPanel) {
-        showOverlay(gameResult == GameState.WIN);
+    public void drawScreen() {
+        showOverlay(gameResult.equals(GameState.WIN));
     }
 
     private void setupFightingUI(JPanel topPanel) {
         JPanel fightingPanel = new JPanel();
         fightingPanel.setLayout(new BoxLayout(fightingPanel, BoxLayout.X_AXIS));
         fightingPanel.setOpaque(false);
+        character = new Player("..\\Assets\\Entities\\player.png", fightingPanel,this);
+        enemies = new Monster.NormalMonster("..\\Assets\\Entities\\monster.png", fightingPanel,this);
+        topPanel.add(fightingPanel, BorderLayout.CENTER);
+        
 
-        character = new Player("..\\Assets\\Entities\\player.png", fightingPanel);
-        enemies = new Monster.NormalMonster("..\\Assets\\Entities\\monster.png", fightingPanel);
-
-
+        JPanel  healthBarPanel = new JPanel();
+        healthBarPanel.setOpaque(false);
+        healthBarPanel.setLayout(new BoxLayout(healthBarPanel, BoxLayout.X_AXIS));
         playerHealthBar = new JProgressBar(0, character.getHP());
         playerHealthBar.setValue(character.getHP());
         playerHealthBar.setStringPainted(true);
-        playerHealthBar.setForeground(Color.RED); 
-        playerHealthBar.setBackground(Color.DARK_GRAY); 
+        playerHealthBar.setForeground(Color.RED);
+        playerHealthBar.setBackground(Color.DARK_GRAY);
+        playerHealthBar.setPreferredSize(new Dimension(0,40));
 
         JPanel playerHealthPanel = new JPanel();
         playerHealthPanel.setLayout(new BorderLayout());
         playerHealthPanel.setOpaque(false);
         playerHealthPanel.add(playerHealthBar, BorderLayout.SOUTH);
-        topPanel.add(playerHealthPanel, BorderLayout.WEST);
+        healthBarPanel.add(playerHealthPanel, BorderLayout.WEST);
 
         monsterHealthBar = new JProgressBar(0, enemies.getHP());
         monsterHealthBar.setValue(enemies.getHP());
         monsterHealthBar.setStringPainted(true);
         monsterHealthBar.setForeground(Color.RED);
         monsterHealthBar.setBackground(Color.DARK_GRAY);
+        monsterHealthBar.setPreferredSize(new Dimension(0,40));
 
         JPanel monsterHealthPanel = new JPanel();
         monsterHealthPanel.setLayout(new BorderLayout());
         monsterHealthPanel.setOpaque(false);
         monsterHealthPanel.add(monsterHealthBar, BorderLayout.SOUTH);
-        topPanel.add(monsterHealthPanel, BorderLayout.EAST);
 
-        fightingPanel.add(Box.createHorizontalGlue());
-        fightingPanel.add(Box.createHorizontalGlue());
-
-        topPanel.add(fightingPanel);
+        healthBarPanel.add(monsterHealthPanel, BorderLayout.EAST);
+        topPanel.add(healthBarPanel);
     }
     private JPanel createPanelWithIconAndLabel(ImageComponent icon, JLabel label) {
         JPanel panel = new JPanel();
@@ -282,11 +271,12 @@ public class GameScreen extends JPanel {
     }
     
     private void setLabelStyle(JLabel label) {
-        label.setFont(new Font("2005_iannnnnGMM", Font.PLAIN, 30));
+        label.setFont(MainFont);
         label.setForeground(Color.WHITE);
     }
     
     private void setupStatusUI(JPanel status,Player player) {
+
         status.setLayout(new BoxLayout(status, BoxLayout.Y_AXIS));
         int IconWidth = 30;
         int IconHeight = 30;
@@ -353,34 +343,42 @@ public class GameScreen extends JPanel {
         flippedButtons.clear();
         cardPanel.removeAll();
         setupGameUI(cardPanel);
+        cardPanel.revalidate();
+        cardPanel.repaint();
+        overlayPanel.revalidate();
+        overlayPanel.repaint();
     }
     
-    public int getcurrentMatch(){
-        return matchCount;
-    }
-    
-    public void setMatch(int n){
-        this.matchCount = n;
-    }
-    
-    public int maximumCard(){
-        return rows * cols;
-    }
-
-    public void HPCheck(GameContext context) {
-        Timer hpCheckTimer = new Timer(100, new ActionListener() {
+    public void HPBarCheck(){
+        updateTimer = new Timer(200, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                boolean playerAlive = context.getPlayer().getHP() > 0;
-                boolean monsterAlive = context.getCurrentMonster().getHP() > 0;
+                    updateHealthBars();
+                    updateStatusLabels(character);
+                    HPCheck(); 
+                    if (enemies.getHP() <= 0 || character.getHP() <= 0) { 
+                        ((Timer) e.getSource()).stop();
+                        return;
+                    }
+            }
+        });
+        updateTimer.start();
+    }
+    public void HPCheck() {
+        Timer hpCheckTimer = new Timer(200, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean playerAlive = character.getHP() > 0;
+                boolean monsterAlive = enemies.getHP() > 0;
 
-                if (!playerAlive && context.getCurrentGame().gameResult != GameState.LOSE) {
-                    context.getCurrentGame().gameResult = GameState.LOSE;
-                    context.getCurrentGame().drawScreen(context.getCurrentGame());
+                if (!playerAlive && gameResult != GameState.LOSE) {
+                    gameResult = GameState.LOSE;
+                    drawScreen();
                     ((Timer) e.getSource()).stop(); 
-                } else if (!monsterAlive && context.getCurrentGame().gameResult != GameState.WIN) {
-                    context.getCurrentGame().gameResult = GameState.WIN;
-                    context.getCurrentGame().drawScreen(context.getCurrentGame());
+                } 
+                else if (!monsterAlive && gameResult != GameState.WIN) {
+                    gameResult = GameState.WIN;
+                    drawScreen();
                     ((Timer) e.getSource()).stop(); 
                 }
             }
@@ -394,18 +392,22 @@ public class GameScreen extends JPanel {
         hpLabel.setText("HP: " + (player.getHP() < 0 ? 0 : player.getHP()));
         defLabel.setText("DEF: " + player.getDEF());
         regenLabel.setText("REGEN: " + player.getREGEN());
-        repaintstatusPanel();
     }
     public void updateHealthBars() {
-        System.out.println("Updating");
         playerHealthBar.setValue(character.getHP());
         monsterHealthBar.setValue(enemies.getHP());
-        playerHealthBar.repaint();
-        monsterHealthBar.repaint();
     }
-    public void repaintstatusPanel(){
-        statusPanel.revalidate();
-        statusPanel.repaint();
+
+    public int getcurrentMatch(){
+        return matchCount;
+    }
+    
+    public void setMatch(int n){
+        this.matchCount = n;
+    }
+    
+    public int maximumCard(){
+        return rows * cols;
     }
     
     protected void playSong(){

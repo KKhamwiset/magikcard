@@ -1,7 +1,6 @@
 package magikcard;
 
 
-import entities.Card;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionListener;
@@ -10,9 +9,10 @@ import javax.swing.JButton;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.awt.event.MouseAdapter;
 
 public class ImageButton extends JButton {
-    private Card associatedCard;
+
     public ImageButton(String imagePath, ActionListener listener) {
         try {
             Image image = ImageIO.read(new File(imagePath));
@@ -26,6 +26,7 @@ public class ImageButton extends JButton {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
     
     public ImageButton(String imagePath, ActionListener listener, int width, int height) {
@@ -33,7 +34,7 @@ public class ImageButton extends JButton {
             Image image = ImageIO.read(new File(imagePath));
             Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
             ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        this.setIcon(scaledIcon);
+            this.setIcon(scaledIcon);
             this.setPreferredSize(new Dimension(width, height));
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,7 +44,8 @@ public class ImageButton extends JButton {
         this.setFocusPainted(false);
         this.addActionListener(listener);
     }
-    public void setImage(String imagePath,int width,int height) {
+
+    public void setImage(String imagePath, int width, int height) {
         try {
             Image image = ImageIO.read(new File(imagePath));
             Image scaledImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
@@ -55,5 +57,13 @@ public class ImageButton extends JButton {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        addMouseListener(new MouseAdapter() {
+        });
     }
+    
+    @Override
+    public void setRolloverEnabled(boolean enabled) {
+        super.setRolloverEnabled(false);
+    }
+
 }

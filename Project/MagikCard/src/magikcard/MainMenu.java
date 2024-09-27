@@ -2,20 +2,15 @@ package magikcard;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.*;
-import java.awt.event.*;
-import java.io.*;
-import javax.imageio.ImageIO;
+
+
 
 public class MainMenu extends BackgroundPanel {
-    private Game game;
-    private BufferedImage backgroundImage;
     private BackgroundMusic bgMusic;
     
     public MainMenu(Game game) {
         
         super("..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg");
-        this.game = game;
         bgMusic = new BackgroundMusic();
         playSong();
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -24,15 +19,19 @@ public class MainMenu extends BackgroundPanel {
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.X_AXIS));
         JLabel titleLabel = new JLabel();
-        titlePanel.add(Box.createHorizontalStrut(150));
+        Font titleFont = FontLoader.loadFont("..\\Fonts\\2005_iannnnnGMM.ttf", 110f);
         titleLabel.setText("MagikCard");
-        titleLabel.setFont(new Font("2005_iannnnnGMM", Font.PLAIN, 100));
+        titleLabel.setFont(titleFont);
         titleLabel.setForeground(Color.WHITE);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         titlePanel.setOpaque(false);
         ImageComponent logo = new ImageComponent("..\\Assets\\Image\\Icon\\logo.png", 250, 300);
+        logo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titlePanel.add(Box.createRigidArea(new Dimension(150, 0)));
         titlePanel.add(logo);
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createHorizontalStrut(400));
+        titlePanel.add(Box.createRigidArea(new Dimension(345, 0)));
+
         
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
