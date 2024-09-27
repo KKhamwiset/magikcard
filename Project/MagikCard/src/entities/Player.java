@@ -2,10 +2,10 @@ package entities;
 
 import magikcard.ImageComponent;
 import javax.swing.*;
-
+import magikcard.GameScreen;
 
 public class Player extends EntitiesDetails implements PlayerAction {
-    public Player(String ImagePath,JPanel currentPanel){
+    public Player(String ImagePath,JPanel currentPanel,GameScreen game) {
         ImageComponent playerModel = new ImageComponent(ImagePath, 125, 175, 150, (currentPanel.getHeight() / 2) + 20);
         this.MAXHP = 1000;
         this.HP = MAXHP;
@@ -15,7 +15,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.X = 150;
         this.Y = (currentPanel.getHeight() / 2) + 20;
         currentPanel.add(playerModel);
-        regenHP();
+        regenHP(game);
     }
     @Override
     public void setHP(int newHP) {
@@ -51,16 +51,23 @@ public class Player extends EntitiesDetails implements PlayerAction {
     public void takingDamage() {
         System.out.println("Player is taking damage!");
     }
+    
     @Override
-    public void regenHP(){
+    public void regenHP(GameScreen screen){
         Timer regenHP = new Timer(5000, e ->{
-            this.setHP(this.HP + this.REGEN);
-            if (this.HP <= 0){
+            int normalRegen = this.REGEN;
+            int overflowRegen = this.MAXHP - this.HP;
+            int regenValue = normalRegen > overflowRegen ? overflowRegen : normalRegen;
+            if (this.HP <= 0 ||  screen.gameResult != null) {
                 ((Timer) e.getSource()).stop();
+            }
+            else if (this.HP + regenValue <= this.MAXHP){
+                setHP(this.HP + regenValue);
             }
         });
         regenHP.start();
     }
+    
     @Override
     public void increaseStats(){
         this.setHP(this.HP + 1000);

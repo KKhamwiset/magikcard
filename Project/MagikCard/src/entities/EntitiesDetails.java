@@ -1,6 +1,6 @@
 package entities;
+import magikcard.GameScreen;
 
-import javax.swing.Timer;
 public abstract class EntitiesDetails{
     protected int MAXHP;
     protected int HP;
@@ -18,6 +18,6 @@ public abstract class EntitiesDetails{
     public abstract void setATK(int newATK);
     public abstract void setDEF(int newDEF);
     public abstract void setREGEN(int newREGEN);
-    public abstract void regenHP();
+    public abstract void regenHP(GameScreen screen);
 
 }

@@ -2,11 +2,12 @@ package entities;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import magikcard.GameScreen;
 import magikcard.ImageComponent;
 
 public class Monster extends EntitiesDetails implements MonsterAction {
     
-    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanel) {
+    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanel,GameScreen game) {
         this.MAXHP = maxhp;
         this.HP = MAXHP;   
         this.ATK = atk;
@@ -14,7 +15,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         this.REGEN = regen; 
         ImageComponent monsterModel = new ImageComponent(imagePath, 200, 175,( currentPanel.getWidth() * 2 ) + 150, (currentPanel.getHeight() / 2) + 20);
         currentPanel.add(monsterModel);
-        regenHP();  
+        regenHP(game);  
     }
 
     @Override
@@ -51,12 +52,18 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         public void takingDamage() {
             System.out.println("Monster is taking heavy damage but still standing strong!");
     }
+        
     @Override
-    public void regenHP(){
+    public void regenHP(GameScreen screen){
         Timer regenHP = new Timer(5000, e ->{
-            this.setHP(this.HP + this.REGEN);
-            if (this.HP <= 0){
+            int normalRegen = this.REGEN;
+            int overflowRegen = this.MAXHP - this.HP;
+            int regenValue = normalRegen > overflowRegen ? overflowRegen : normalRegen;
+            if (this.HP <= 0 ||  screen.gameResult != null) {
                 ((Timer) e.getSource()).stop();
+            }
+            else if (this.HP + regenValue <= this.MAXHP){
+                setHP(this.HP + regenValue);
             }
         });
         regenHP.start();
@@ -64,14 +71,14 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     
 
     public static class NormalMonster extends Monster {
-        public NormalMonster(String imagePath, JPanel currentPanel) {
-            super(imagePath, 1000, 10, 100, 5, currentPanel);
+        public NormalMonster(String imagePath, JPanel currentPanel,GameScreen game) {
+            super(imagePath, 1000, 100, 100, 5, currentPanel,game);
         }
     }
 
     public static class BossMonster extends Monster{
-        public BossMonster(String imagePath, JPanel currentPanel) {
-            super(imagePath, 2000, 200, 150, 10, currentPanel);
+        public BossMonster(String imagePath, JPanel currentPanel,GameScreen game) {
+            super(imagePath, 2000, 200, 150, 10, currentPanel,game);
         }
     }
 }

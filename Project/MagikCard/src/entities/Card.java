@@ -1,7 +1,6 @@
 package entities;
 
-import entities.Player;
-import entities.Monster;
+
 import magikcard.ImageButton;
 import magikcard.GameScreen;
 import magikcard.GameState;
@@ -35,10 +34,9 @@ public class Card {
         "psyhic",
         "water" };
     
-    public Card(String imagePath, boolean isCard, int cardIndex, String cardName, ImageButton cardIcon) {
+    public Card(String imagePath, boolean isCard, String cardName, ImageButton cardIcon) {
         this.imagePath = imagePath;
         this.isFaceUp = false;
-        this.cardIndex = cardIndex;
         this.cardName = cardName;
     }
 
@@ -60,7 +58,6 @@ public class Card {
                     fileList.add(file);
                 }
             }
-            int id = 0;
             int addedCards = 0;
             while (addedCards < maxCards) {
                 if (addedCards >= maxCards || fileList.size() == 0) {
@@ -74,8 +71,8 @@ public class Card {
                 if (cardsName.contains(cardName)) {
                     ImageButton card1 = new ImageButton(getBackCardImagePath(folderPath), listener, cardWidth, cardHeight);
                     ImageButton card2 = new ImageButton(getBackCardImagePath(folderPath), listener, cardWidth, cardHeight);
-                    cards.add(new Card(imagePath, true, id++, cardName, card1));
-                    cards.add(new Card(imagePath, true, id++, cardName, card2));
+                    cards.add(new Card(imagePath, true, cardName, card1));
+                    cards.add(new Card(imagePath, true, cardName, card2));
                     addedCards += 2;
                 }
               
@@ -150,12 +147,10 @@ public class Card {
        if (flippedCards.size() >= 2 || flippedCards.contains(this) || this.isFaceUp()) {
            return;
        }
-
        this.setFaceUp(true);
        flippedCards.add(this);
        flippedButtons.add(cardIcon);
        cardIcon.setImage(getImagePath(), width, height);
-
        if (flippedCards.size() == 2) {
            compareFlippedCards(context, flippedCards, flippedButtons, width, height);
        }
@@ -172,14 +167,13 @@ public class Card {
           if (firstCard.isMatch(secondCard)) {
               context.getPlayer().Attack(context.getCurrentMonster());
               context.getCurrentGame().setMatch(context.getCurrentGame().getcurrentMatch() + 1);
-              checkGameWinCondition(context);
+              checkAllCardsMatchCondition(context);
           } else {
+              flipCardsBack(firstCard, secondCard, flippedButtons, width, height);    
               context.getCurrentMonster().Attack(context.getPlayer());
-              flipCardsBack(firstCard, secondCard, flippedButtons, width, height);
           }
           flippedCards.clear();
           flippedButtons.clear();
-          ((Timer) e.getSource()).stop();
           isComparing = false; 
       });
       timer.setRepeats(false);
@@ -193,7 +187,7 @@ public class Card {
        flippedButtons.get(1).setImage(secondCard.getBackCardImagePath(folderPath), width, height);
     }
 
-   private void checkGameWinCondition(GameContext context) {
+   private void checkAllCardsMatchCondition(GameContext context) {
        int maxPair = (int) (context.getCurrentGame().maximumCard() / 2.0);
        if (context.getCurrentGame().getcurrentMatch() == maxPair) {
            Timer timerRest = new Timer(100, e -> {
