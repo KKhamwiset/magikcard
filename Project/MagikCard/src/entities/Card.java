@@ -121,25 +121,7 @@ public class Card {
     public boolean isMatch(Card otherCard) {
         return this.getCardName().equals(otherCard.getCardName());
     }
-    public void actionsBaseOnCard(String cardName, GameContext context) {
-        Player player = context.getPlayer();
-        Monster monster = context.getCurrentMonster();
-        GameState gameResult = context.getCurrentGame().gameResult;
-        switch (cardName) {
-            case "darkness": 
-                context.getPlayer().Attack(context.getCurrentMonster());
-                break;
-            case "fairy": 
-                break;
-            case "grass": 
-                break;
-            case "double": 
-                break;
-            default: 
-                break;
-        }
-    }
-    
+
  
     public void handleCardClick(ImageButton cardIcon, int width, int height, 
                                ArrayList<Card> flippedCards, ArrayList<ImageButton> flippedButtons, 
@@ -190,10 +172,13 @@ public class Card {
    private void checkAllCardsMatchCondition(GameContext context) {
        int maxPair = (int) (context.getCurrentGame().maximumCard() / 2.0);
        if (context.getCurrentGame().getcurrentMatch() == maxPair) {
-           Timer timerRest = new Timer(100, e -> {
-               context.getCurrentGame().setMatch(0);
-               context.getCurrentGame().resetCardUI();
-               ((Timer) e.getSource()).stop();
+           Timer timerRest = new Timer(100, new ActionListener() {
+           @Override
+            public void actionPerformed(ActionEvent e) {
+                context.getCurrentGame().setMatch(0);
+                context.getCurrentGame().resetCardUI();
+                ((Timer) e.getSource()).stop();
+            }
            });
            timerRest.setRepeats(false);
            timerRest.start();

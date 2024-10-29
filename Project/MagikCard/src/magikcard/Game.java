@@ -10,7 +10,7 @@ public class Game {
         frame = new JFrame("MagikCard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1200, 800);
-        // frame.setResizable(false);
+        frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         mainMenu = new MainMenu(this);
         frame.add(mainMenu);
