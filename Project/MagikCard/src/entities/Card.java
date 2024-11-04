@@ -153,7 +153,7 @@ public class Card {
                 context.getCurrentGame().setMatch(context.getCurrentGame().getcurrentMatch() + 1);
                 checkAllCardsMatchCondition(context);
             } else {
-                flipCardsBack(firstCard, secondCard, flippedButtons, width, height);    
+                flipCardsBack(firstCard, secondCard, flippedButtons, width, height);
                 context.getCurrentMonster().Attack(context.getPlayer());
             }
             flippedCards.clear();

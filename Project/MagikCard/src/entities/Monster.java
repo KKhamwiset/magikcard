@@ -1,5 +1,8 @@
 package entities;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import magikcard.GameScreen;
@@ -9,7 +12,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     private Timer regenTimer;
     private ImageComponent monsterModel;
     private JPanel currentPanel;
-    
+    private JPanel damageIndicator; 
     public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanelD, GameScreen game) {
         this.currentPanel = currentPanelD;
         this.MAXHP = maxhp;
@@ -74,12 +77,38 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     @Override
         public void Attack(Player player) {
             System.out.println("Monster is attacking!");
+            player.takingDamage();
             player.setHP(player.getHP() - this.ATK); 
         }
-
+    private JPanel createDamageIndicator() {
+        JPanel indicator = new JPanel();
+        indicator.setOpaque(true);
+        indicator.setBackground(new Color(255, 0, 0, 100));
+        return indicator;
+    }
     @Override
-        public void takingDamage() {
-            System.out.println("Monster is taking heavy damage but still standing strong!");
+    public void takingDamage() {
+        System.out.println("Player is taking damage!");
+
+        if (damageIndicator == null) {
+            damageIndicator = createDamageIndicator();
+            monsterModel.add(damageIndicator);
+        }
+
+        damageIndicator.setBounds(0, 0, monsterModel.getWidth(), monsterModel.getHeight());
+        damageIndicator.setVisible(true);
+
+        monsterModel.revalidate();
+        monsterModel.repaint();
+        Timer damageTimer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                damageIndicator.setVisible(false);
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        damageTimer.setRepeats(false);
+        damageTimer.start();
     }
     public void stopRegeneration() {
         if (regenTimer != null && regenTimer.isRunning()) {
