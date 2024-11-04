@@ -54,6 +54,7 @@ public class GameScreen extends JPanel {
     public StageManager stageManager;
     private FightingPanelManager fightingManager;
     private BackgroundPanel statusPanel;
+    private topFrame gameRender;
     private BackgroundMusic bgMusic;
     private JLabel atkLabel;
     private JLabel hpLabel;
@@ -85,7 +86,7 @@ public class GameScreen extends JPanel {
         JPanel mainFrame = new JPanel();
         mainFrame.setLayout(new BoxLayout(mainFrame, BoxLayout.Y_AXIS));
 
-        BackgroundPanel gameRender = new topFrame();
+        gameRender = new topFrame();
         gameRender.setLayout(new BoxLayout(gameRender, BoxLayout.Y_AXIS));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -362,6 +363,7 @@ public class GameScreen extends JPanel {
             if (stageManager.hasNextStage()) {
                 System.out.println("MONSTER DIED - NEXT STAGE");
                 StageData nextStage = stageManager.moveToNextStage();
+                gameRender.changeBackground(nextStage.getBackgroundPath());
                 initializeStage(nextStage);
                 cardPanel.removeAll();
                 setupGameUI(cardPanel);

@@ -8,7 +8,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
     private JPanel currentPanel;
     private static final String PLAYER_IMAGE = "..\\Assets\\Entities\\player.png";
     
-    public Player(String ImagePath, JPanel currentPanel, GameScreen game) {
+    public Player(JPanel currentPanel, GameScreen game) {
         this.currentPanel = currentPanel;
         this.MAXHP = 1000;
         this.HP = MAXHP;
