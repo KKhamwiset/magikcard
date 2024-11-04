@@ -1,12 +1,13 @@
 package entities;
-
 import magikcard.ImageComponent;
 import javax.swing.*;
 import magikcard.GameScreen;
 
 public class Player extends EntitiesDetails implements PlayerAction {
-    public Player(String ImagePath,JPanel currentPanel,GameScreen game) {
-        ImageComponent playerModel = new ImageComponent(ImagePath, 125, 175, 150, (currentPanel.getHeight() / 2) + 20);
+    private ImageComponent playerModel; 
+    private static final String PLAYER_IMAGE = "..\\Assets\\Entities\\player.png";
+    
+    public Player(String ImagePath, JPanel currentPanel, GameScreen game) {
         this.MAXHP = 1000;
         this.HP = MAXHP;
         this.DEF = 100;
@@ -14,9 +15,19 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.REGEN = 5;
         this.X = 150;
         this.Y = (currentPanel.getHeight() / 2) + 20;
-        currentPanel.add(playerModel);
+        createVisual(currentPanel);
         regenHP(game);
     }
+
+    private void createVisual(JPanel panel) {
+        playerModel = new ImageComponent(PLAYER_IMAGE,125, 175,150,(panel.getHeight() / 2) + 20);
+        panel.add(playerModel);
+    }
+    
+    public void recreateVisual(JPanel panel) {
+        createVisual(panel);
+    }
+    
     @Override
     public void setHP(int newHP) {
         this.HP = newHP;

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class BackgroundMusic {
     private Clip clip;
-
+    BackgroundMusic(){}
     public void playMusic(String musicFilePath) {
         try {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(musicFilePath));

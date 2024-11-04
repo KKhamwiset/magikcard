@@ -29,7 +29,7 @@ public class FightingPanelManager {
             "..\\Assets\\Entities\\monster.png", 
             fightingPanel, 
             gameScreen,
-            100,  
+            10,  
             10,   
             5,   
             2     
@@ -78,10 +78,18 @@ public class FightingPanelManager {
     }
     
     public void updateForNewStage(StageData stageData) {
-        if (fightingPanel != null) {
+        System.out.println("=== Starting Stage Update ===");
+        if (fightingPanel != null && gameScreen.currentState != null) {
+            if (enemies != null) {
+                enemies.stopRegeneration();
+            }
             fightingPanel.removeAll();
-            character = new Player("..\\Assets\\Entities\\player.png", fightingPanel, gameScreen);
-            
+            character.recreateVisual(fightingPanel);
+            System.out.println("Creating new monster with stats:");
+            System.out.println("HP: " + stageData.getMonsterHP());
+            System.out.println("ATK: " + stageData.getMonsterATK());
+            System.out.println("DEF: " + stageData.getMonsterDEF());
+
             enemies = new Monster.NormalMonster(
                 stageData.getMonsterImagePath(),
                 fightingPanel,
@@ -91,15 +99,15 @@ public class FightingPanelManager {
                 stageData.getMonsterDEF(),
                 stageData.getMonsterREGEN()
             );
-            
+
             monsterHealthBar.setMaximum(enemies.getHP());
             monsterHealthBar.setValue(enemies.getHP());
-            
             fightingPanel.revalidate();
             fightingPanel.repaint();
         }
+        System.out.println("=== Stage Update Complete ===");
     }
-    
+
     public void updateHealthBars() {
         playerHealthBar.setValue(Math.max(0, character.getHP()));
         monsterHealthBar.setValue(Math.max(0, enemies.getHP()));

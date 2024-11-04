@@ -12,7 +12,10 @@ public class GameContext {
         this.currentMonster = currentMonster;
         this.currentGame = currentGame;
     }
-
+    public void setNewMonster(Monster newMonster){
+        this.currentMonster = newMonster;
+                
+    }
     public Player getPlayer() {
         return player;
     }

@@ -21,7 +21,6 @@ public class Game {
         gameScreen = new GameScreen(this);
         frame.remove(mainMenu);
         frame.add(gameScreen);
-        gameScreen.playSong();
         frame.revalidate();
         frame.repaint();
     }
@@ -29,7 +28,6 @@ public class Game {
         gameScreen = new GameScreen(this);
         frame.remove(currentScreen);
         frame.add(gameScreen);
-        gameScreen.playSong();
         frame.revalidate();
         frame.repaint();
     }

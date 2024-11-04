@@ -69,39 +69,40 @@ public class GameScreen extends JPanel {
         this.stageManager = new StageManager();
         this.fightingManager = new FightingPanelManager(this);
         this.bgMusic = new BackgroundMusic();
-        initializeStage(stageManager.getCurrentStage());
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1200, 800));
-    
+
+
         JPanel mainFrame = new JPanel();
         mainFrame.setLayout(new BoxLayout(mainFrame, BoxLayout.Y_AXIS));
-    
+
         BackgroundPanel gameRender = new topFrame();
         gameRender.setLayout(new BoxLayout(gameRender, BoxLayout.Y_AXIS));
-        
+
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
-            game.switchToMainMenu(this);
+            bgMusic.stopMusic();
             resetCardUI();
-            stopSong();
+            game.switchToMainMenu(this);
         }, 60, 60);
         buttonPanel.setOpaque(false);
         buttonPanel.add(backButton);
         gameRender.add(buttonPanel, BorderLayout.NORTH);
-    
+
+
         BackgroundPanel bottomPanel = new bottomFrame();
         BackgroundPanel gamePlay = new bottomRightFrame();
         statusPanel = new bottomLeftFrame();
         cardPanel = new JPanel();
-    
+
         gameRender.add(fightingManager.getMainContainer(), BorderLayout.CENTER);
         setupGameUI(gamePlay);
         setupStatusUI(statusPanel);
-
+        initializeStage(stageManager.getCurrentStage());
         context = new GameContext(fightingManager.getCharacter(), fightingManager.getEnemies(), this);
-        
+
 
         bottomPanel.add(statusPanel);
         bottomPanel.add(gamePlay);
@@ -109,17 +110,18 @@ public class GameScreen extends JPanel {
         mainFrame.add(bottomPanel);
 
         mainFrame.setBounds(0, 0, 1200, 800);
-        layeredPane.add(mainFrame, JLayeredPane.DEFAULT_LAYER);
 
         createOverlayPanel();
         overlayPanel.setBounds(0, 0, 1200, 800);
+        layeredPane.add(mainFrame, JLayeredPane.DEFAULT_LAYER);
         layeredPane.add(overlayPanel, JLayeredPane.PALETTE_LAYER);
-        
         this.add(layeredPane, BorderLayout.CENTER);
-        HPBarCheck();
+
         currentState = GameState.START;
+        HPBarCheck();
     }
-    
+
+
     private void createOverlayPanel() {
         overlayPanel = new JPanel() {
             @Override
@@ -156,14 +158,14 @@ public class GameScreen extends JPanel {
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
     
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
-            game.switchToMainMenu(this);
+            bgMusic.stopMusic();
             resetCardUI();
-            stopSong();
+            game.switchToMainMenu(this);
         }, 60, 60);
     
         ImageButton restartButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\restart.png", e -> {
+            bgMusic.stopMusic();
             game.restartGameScreen(this);
-            stopSong();
         }, 60, 60);
     
         buttonPanel.add(backButton);
@@ -197,11 +199,11 @@ public class GameScreen extends JPanel {
         messageLabel2.setForeground(Color.WHITE);
 
         if (win) {
-            overlayPanel.setBackground(new Color(10, 255, 10, 60));
+            overlayPanel.setBackground(new Color(10, 255, 10, 60)); 
             messageLabel.setText("You Win!!!!");
             messageLabel2.setText("Congratulations!");
         } else {
-            overlayPanel.setBackground(new Color(255, 10, 10, 60));
+            overlayPanel.setBackground(new Color(255, 10, 10, 60)); 
             messageLabel.setText("You Lose!");
             messageLabel2.setText("Better luck next time!");
         }
@@ -310,8 +312,6 @@ public class GameScreen extends JPanel {
         flippedCards.clear();
         flippedButtons.clear();
         cardPanel.removeAll();
-        stageManager.resetToFirstStage();
-        initializeStage(stageManager.getCurrentStage());
         setupGameUI(cardPanel);
         cardPanel.revalidate();
         cardPanel.repaint();
@@ -323,41 +323,42 @@ public class GameScreen extends JPanel {
         updateTimer = new Timer(200, e -> {
             fightingManager.updateHealthBars();
             updateStatusLabels();
-            HPCheck();
-            
-            if (fightingManager.getEnemies().getHP() <= 0 || 
-                fightingManager.getCharacter().getHP() <= 0) {
+            checkGameState();
+
+            if (gameResult != null) { 
                 ((Timer) e.getSource()).stop();
             }
         });
         updateTimer.start();
     }
 
-    public void HPCheck() {
-        Timer hpCheckTimer = new Timer(200, e -> {
-            Player player = fightingManager.getCharacter();
-            Monster monster = fightingManager.getEnemies();
-            
-            boolean playerAlive = player.getHP() > 0;
-            boolean monsterAlive = monster.getHP() > 0;
+    public void checkGameState() {
+        Player player = fightingManager.getCharacter();
+        Monster monster = fightingManager.getEnemies();
 
-            if (!playerAlive && gameResult != GameState.LOSE) {
-                gameResult = GameState.LOSE;
+        boolean playerAlive = player.getHP() > 0;
+        boolean monsterAlive = monster.getHP() > 0;
+
+        if (!playerAlive && gameResult != GameState.LOSE) {
+            System.out.println("PLAYER DIED - GAME OVER");
+            monster.stopRegeneration(); 
+            gameResult = GameState.LOSE;
+            drawScreen();
+        } 
+        else if (!monsterAlive) {
+            monster.stopRegeneration();
+            if (stageManager.hasNextStage()) {
+                System.out.println("MONSTER DIED - NEXT STAGE");
+                StageData nextStage = stageManager.moveToNextStage();
+                initializeStage(nextStage);
+                monster = fightingManager.getEnemies();
+                context.setNewMonster(monster);
+            } else {
+                System.out.println("ALL STAGES COMPLETE - VICTORY");
+                gameResult = GameState.WIN;
                 drawScreen();
-                ((Timer) e.getSource()).stop();
-            } else if (!monsterAlive) {
-                if (stageManager.hasNextStage()) {
-                    StageData nextStage = stageManager.moveToNextStage();
-                    initializeStage(nextStage);
-                    resetCardUI();
-                } else {
-                    gameResult = GameState.WIN;
-                    drawScreen();
-                    ((Timer) e.getSource()).stop();
-                }
             }
-        });
-        hpCheckTimer.start();
+        }
     }
     private void updateStatusLabels() {
         Player player = fightingManager.getCharacter();
@@ -379,12 +380,4 @@ public class GameScreen extends JPanel {
         return rows * cols;
     }
    
-    public void playSong() {
-        bgMusic.playMusic("..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav");
-        bgMusic.setVolume(0.9f);
-    }
-    
-    public void stopSong() {
-        bgMusic.stopMusic();
-    }
 }
