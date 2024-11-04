@@ -4,6 +4,7 @@ import entities.Card;
 import entities.Player;
 import entities.Monster;
 import entities.GameContext;
+import stages.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -45,6 +46,7 @@ class bottomFrame extends BackgroundPanel {
 public class GameScreen extends JPanel {
     private int matchCount = 0;
     private Game game;
+    private StageManager stageManager;
     private BackgroundPanel statusPanel;
     private BackgroundMusic bgMusic;
     private Player character;
@@ -71,6 +73,8 @@ public class GameScreen extends JPanel {
     public GameScreen(Game game) {
         this.game = game;
         this.setLayout(new BorderLayout());
+        this.stageManager = new StageManager();
+        initializeStage(stageManager.getCurrentStage());
         bgMusic = new BackgroundMusic();
     
 
@@ -252,7 +256,7 @@ public class GameScreen extends JPanel {
         monsterHealthBar.setForeground(Color.RED);
         monsterHealthBar.setBackground(Color.DARK_GRAY);
         monsterHealthBar.setPreferredSize(new Dimension(0,40));
-
+        
         JPanel monsterHealthPanel = new JPanel();
         monsterHealthPanel.setLayout(new BorderLayout());
         monsterHealthPanel.setOpaque(false);
