@@ -31,7 +31,7 @@ public class FightingPanelManager {
         playerArea.setOpaque(false);
         monsterArea.setOpaque(false);
         
-        character = new Player("..\\Assets\\Entities\\player.png", playerArea, gameScreen);
+        character = new Player(playerArea, gameScreen);
         
         StageData initialStage = gameScreen.stageManager.getCurrentStage();
         enemies = new Monster.NormalMonster(
