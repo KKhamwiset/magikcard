@@ -3,7 +3,7 @@ package stages;
 import java.util.*;
 
 public class StageManager {
-    private static final ArrayList<StageData> stages = new ArrayList<>();
+    private ArrayList<StageData> stages = new ArrayList<>();
     private int currentStageIndex = 0;
     
     public StageManager() {
