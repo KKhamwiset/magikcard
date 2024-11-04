@@ -42,7 +42,7 @@ class bottomFrame extends BackgroundPanel {
 public class GameScreen extends JPanel {
     private int matchCount = 0;
     private Game game;
-    private StageManager stageManager;
+    public StageManager stageManager;
     private FightingPanelManager fightingManager;
     private BackgroundPanel statusPanel;
     private BackgroundMusic bgMusic;

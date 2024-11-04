@@ -19,22 +19,24 @@ public class FightingPanelManager {
         initializePanels();
     }
     
-    private void initializePanels() {
+ private void initializePanels() {
         fightingPanel = new JPanel();
         fightingPanel.setLayout(new BoxLayout(fightingPanel, BoxLayout.X_AXIS));
         fightingPanel.setOpaque(false);
         
         character = new Player("..\\Assets\\Entities\\player.png", fightingPanel, gameScreen);
-        enemies = new Monster.NormalMonster(
-            "..\\Assets\\Entities\\monster.png", 
-            fightingPanel, 
-            gameScreen,
-            10,  
-            10,   
-            5,   
-            2     
-        );
         
+        StageData initialStage = gameScreen.stageManager.getCurrentStage();
+        enemies = new Monster.NormalMonster(
+            initialStage.getMonsterImagePath(),
+            fightingPanel,
+            gameScreen,
+            initialStage.getMonsterHP(),
+            initialStage.getMonsterATK(),
+            initialStage.getMonsterDEF(),
+            initialStage.getMonsterREGEN()
+        );
+  
         JPanel healthBarPanel = createHealthBarPanel();
         mainContainer = new JPanel();
         mainContainer.setLayout(new BorderLayout());
@@ -42,7 +44,6 @@ public class FightingPanelManager {
         mainContainer.add(fightingPanel, BorderLayout.CENTER);
         mainContainer.add(healthBarPanel, BorderLayout.SOUTH);
     }
-    
     private JPanel createHealthBarPanel() {
         JPanel healthBarPanel = new JPanel();
         healthBarPanel.setOpaque(false);
