@@ -11,7 +11,6 @@ import java.awt.event.*;
 import java.util.ArrayList;
 
 class topFrame extends BackgroundPanel {
-
     public topFrame() {
         super("..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg");
         this.setLayout(new BorderLayout());
@@ -20,7 +19,6 @@ class topFrame extends BackgroundPanel {
 }
 
 class bottomRightFrame extends BackgroundPanel {
-
     public bottomRightFrame() {
         super("..\\Assets\\Background\\cardBord.png");
         this.setPreferredSize(new Dimension(600, 450));
@@ -28,7 +26,6 @@ class bottomRightFrame extends BackgroundPanel {
 }
 
 class bottomLeftFrame extends BackgroundPanel {
-
     public bottomLeftFrame() {
         super("..\\Assets\\Background\\7966815.jpg");
         this.setPreferredSize(new Dimension(600, 450));
@@ -36,7 +33,6 @@ class bottomLeftFrame extends BackgroundPanel {
 }
 
 class bottomFrame extends BackgroundPanel {
-
     public bottomFrame() {
         super("..\\Assets\\Background\\mainBG.png");
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -47,18 +43,15 @@ public class GameScreen extends JPanel {
     private int matchCount = 0;
     private Game game;
     private StageManager stageManager;
+    private FightingPanelManager fightingManager;
     private BackgroundPanel statusPanel;
     private BackgroundMusic bgMusic;
-    private Player character;
-    private Monster enemies;
     private JLabel atkLabel;
     private JLabel hpLabel;
     private JLabel defLabel;
     private JLabel regenLabel;
     private JPanel overlayPanel;
     private JPanel cardPanel;
-    private JProgressBar playerHealthBar;
-    private JProgressBar monsterHealthBar;
     private Timer updateTimer;
     private Font MainFont = FontLoader.loadFont("..\\Fonts\\2005_iannnnnGMM.ttf", 30f);
     private Font OverlayFont = FontLoader.loadFont("..\\Fonts\\ZFTERMIN_.ttf", 64f);
@@ -74,9 +67,9 @@ public class GameScreen extends JPanel {
         this.game = game;
         this.setLayout(new BorderLayout());
         this.stageManager = new StageManager();
+        this.fightingManager = new FightingPanelManager(this);
+        this.bgMusic = new BackgroundMusic();
         initializeStage(stageManager.getCurrentStage());
-        bgMusic = new BackgroundMusic();
-    
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1200, 800));
@@ -86,6 +79,8 @@ public class GameScreen extends JPanel {
     
         BackgroundPanel gameRender = new topFrame();
         gameRender.setLayout(new BoxLayout(gameRender, BoxLayout.Y_AXIS));
+        
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
             game.switchToMainMenu(this);
@@ -101,11 +96,13 @@ public class GameScreen extends JPanel {
         statusPanel = new bottomLeftFrame();
         cardPanel = new JPanel();
     
-        setupFightingUI(gameRender);
+        gameRender.add(fightingManager.getMainContainer(), BorderLayout.CENTER);
         setupGameUI(gamePlay);
-        setupStatusUI(statusPanel, character);
-        context = new GameContext(character, enemies, this);
+        setupStatusUI(statusPanel);
+
+        context = new GameContext(fightingManager.getCharacter(), fightingManager.getEnemies(), this);
         
+
         bottomPanel.add(statusPanel);
         bottomPanel.add(gamePlay);
         mainFrame.add(gameRender);
@@ -113,11 +110,11 @@ public class GameScreen extends JPanel {
 
         mainFrame.setBounds(0, 0, 1200, 800);
         layeredPane.add(mainFrame, JLayeredPane.DEFAULT_LAYER);
-        
 
         createOverlayPanel();
         overlayPanel.setBounds(0, 0, 1200, 800);
         layeredPane.add(overlayPanel, JLayeredPane.PALETTE_LAYER);
+        
         this.add(layeredPane, BorderLayout.CENTER);
         HPBarCheck();
         currentState = GameState.START;
@@ -152,9 +149,7 @@ public class GameScreen extends JPanel {
         labelPanel.add(messageLabel);
         labelPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         labelPanel.add(messageLabel2);
-        
-        labelPanel.setAlignmentX(Component.CENTER_ALIGNMENT); 
-    
+        labelPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
@@ -174,49 +169,48 @@ public class GameScreen extends JPanel {
         buttonPanel.add(backButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(50, 0)));
         buttonPanel.add(restartButton);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         overlayPanel.add(Box.createVerticalGlue());
         overlayPanel.add(Box.createVerticalGlue());
         overlayPanel.add(labelPanel);
-        overlayPanel.add(Box.createRigidArea(new Dimension(0, 20))); 
+        overlayPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         overlayPanel.add(buttonPanel);
         overlayPanel.add(Box.createVerticalGlue());
     
         overlayPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                e.consume(); 
+                e.consume();
             }
         });
     }
     
-        public void showOverlay(boolean win) {
-            JPanel outerJLabel = (JPanel) overlayPanel.getComponent(2);
-            JLabel messageLabel = (JLabel) outerJLabel.getComponent(0);
-            JLabel messageLabel2 = (JLabel) outerJLabel.getComponent(2);
-        
-    
-            messageLabel.setFont(OverlayFont);
-            messageLabel.setForeground(Color.WHITE);
-            messageLabel2.setFont(OverlayFont);
-            messageLabel2.setForeground(Color.WHITE);
-        
-            if (win) {
-                overlayPanel.setBackground(new Color(10, 255, 10, 60));
-                messageLabel.setText("You Win!!!!");
-                messageLabel2.setText("Congratulations!");
-            } else {
-                overlayPanel.setBackground(new Color(255, 10, 10, 60));
-                messageLabel.setText("You Lose!");
-                messageLabel2.setText("Better luck next time!");
-            }
-        
-            overlayPanel.setVisible(true);
-            overlayPanel.revalidate();
-            overlayPanel.repaint();
+    public void showOverlay(boolean win) {
+        JPanel outerJLabel = (JPanel) overlayPanel.getComponent(2);
+        JLabel messageLabel = (JLabel) outerJLabel.getComponent(0);
+        JLabel messageLabel2 = (JLabel) outerJLabel.getComponent(2);
+
+        messageLabel.setFont(OverlayFont);
+        messageLabel.setForeground(Color.WHITE);
+        messageLabel2.setFont(OverlayFont);
+        messageLabel2.setForeground(Color.WHITE);
+
+        if (win) {
+            overlayPanel.setBackground(new Color(10, 255, 10, 60));
+            messageLabel.setText("You Win!!!!");
+            messageLabel2.setText("Congratulations!");
+        } else {
+            overlayPanel.setBackground(new Color(255, 10, 10, 60));
+            messageLabel.setText("You Lose!");
+            messageLabel2.setText("Better luck next time!");
         }
-    
+
+        overlayPanel.setVisible(true);
+        overlayPanel.revalidate();
+        overlayPanel.repaint();
+    }
+
     public void hideOverlay() {
         overlayPanel.setVisible(false);
     }
@@ -225,63 +219,47 @@ public class GameScreen extends JPanel {
         showOverlay(gameResult.equals(GameState.WIN));
     }
 
-    private void setupFightingUI(JPanel topPanel) {
-        JPanel fightingPanel = new JPanel();
-        fightingPanel.setLayout(new BoxLayout(fightingPanel, BoxLayout.X_AXIS));
-        fightingPanel.setOpaque(false);
-        character = new Player("..\\Assets\\Entities\\player.png", fightingPanel,this);
-        enemies = new Monster.NormalMonster("..\\Assets\\Entities\\monster.png", fightingPanel,this);
-        topPanel.add(fightingPanel, BorderLayout.CENTER);
+    private void initializeStage(StageData stageData) {
+        this.rows = stageData.getRows();
+        this.cols = stageData.getCols();
+        fightingManager.updateForNewStage(stageData);
+        bgMusic.stopMusic();
+        bgMusic.playMusic(stageData.getMusicPath());
+    }
+
+    private void setupGameUI(JPanel gamePlay) {
+        int cardWidth = 75;
+        int cardHeight = 95;
+        cardPanel.setLayout(new GridLayout(rows, cols, 10, 10));
+        String folderPath = "..\\Assets\\Card";
+        Card cards_Set = new Card(folderPath, cardWidth, cardHeight, this);
+        cards_Set.shuffleCards();
         
-
-        JPanel  healthBarPanel = new JPanel();
-        healthBarPanel.setOpaque(false);
-        healthBarPanel.setLayout(new BoxLayout(healthBarPanel, BoxLayout.X_AXIS));
-        playerHealthBar = new JProgressBar(0, character.getHP());
-        playerHealthBar.setValue(character.getHP());
-        playerHealthBar.setStringPainted(true);
-        playerHealthBar.setForeground(Color.RED);
-        playerHealthBar.setBackground(Color.DARK_GRAY);
-        playerHealthBar.setPreferredSize(new Dimension(0,40));
-
-        JPanel playerHealthPanel = new JPanel();
-        playerHealthPanel.setLayout(new BorderLayout());
-        playerHealthPanel.setOpaque(false);
-        playerHealthPanel.add(playerHealthBar, BorderLayout.SOUTH);
-        healthBarPanel.add(playerHealthPanel, BorderLayout.WEST);
-
-        monsterHealthBar = new JProgressBar(0, enemies.getHP());
-        monsterHealthBar.setValue(enemies.getHP());
-        monsterHealthBar.setStringPainted(true);
-        monsterHealthBar.setForeground(Color.RED);
-        monsterHealthBar.setBackground(Color.DARK_GRAY);
-        monsterHealthBar.setPreferredSize(new Dimension(0,40));
+        for (Card card : cards_Set.getShuffledCards()) {
+            String backCardPath = card.getBackCardImagePath(folderPath);
+            ImageButton cardIcon = new ImageButton(backCardPath, null, cardWidth, cardHeight);
+            cardIcon.addActionListener(e -> card.handleCardClick(cardIcon, cardWidth, cardHeight, 
+                flippedCards, flippedButtons, context));
+            cardPanel.add(cardIcon);
+        }
         
-        JPanel monsterHealthPanel = new JPanel();
-        monsterHealthPanel.setLayout(new BorderLayout());
-        monsterHealthPanel.setOpaque(false);
-        monsterHealthPanel.add(monsterHealthBar, BorderLayout.SOUTH);
+        cardPanel.setOpaque(false);
+        cardPanel.setBorder(BorderFactory.createEmptyBorder(75, 40, 40, 50));
+        
+        if (currentState != GameState.START) {
+            gamePlay.setOpaque(false);
+            gamePlay.add(Box.createHorizontalGlue());
+            gamePlay.add(cardPanel);
+        } else {
+            cardPanel.revalidate();
+            cardPanel.repaint();
+        }
+    }
 
-        healthBarPanel.add(monsterHealthPanel, BorderLayout.EAST);
-        topPanel.add(healthBarPanel);
-    }
-    private JPanel createPanelWithIconAndLabel(ImageComponent icon, JLabel label) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        panel.setOpaque(false);
-        panel.add(icon);
-        panel.add(label);
-        return panel;
-    }
-    
-    private void setLabelStyle(JLabel label) {
-        label.setFont(MainFont);
-        label.setForeground(Color.WHITE);
-    }
-    
-    private void setupStatusUI(JPanel status,Player player) {
-
+    private void setupStatusUI(JPanel status) {
+        Player player = fightingManager.getCharacter();
         status.setLayout(new BoxLayout(status, BoxLayout.Y_AXIS));
+        
         int IconWidth = 30;
         int IconHeight = 30;
         ImageComponent ATK = new ImageComponent("..\\Assets\\Image\\Icon\\sword_9742884.png", IconWidth, IconHeight);
@@ -290,9 +268,10 @@ public class GameScreen extends JPanel {
         ImageComponent REGEN = new ImageComponent("..\\Assets\\Image\\Icon\\healthcare_9224842.png", IconWidth, IconHeight);
         
         atkLabel = new JLabel("ATK: " + player.getATK());
-        hpLabel = new JLabel("HP: " +  player.getHP());
-        defLabel = new JLabel("DEF: " + player.getDEF() );
+        hpLabel = new JLabel("HP: " + player.getHP());
+        defLabel = new JLabel("DEF: " + player.getDEF());
         regenLabel = new JLabel("REGEN: " + player.getREGEN());
+        
         setLabelStyle(atkLabel);
         setLabelStyle(hpLabel);
         setLabelStyle(defLabel);
@@ -311,117 +290,101 @@ public class GameScreen extends JPanel {
         status.add(iconPanel);
         status.add(Box.createVerticalGlue());
     }
-    
-    private void setupGameUI(JPanel gamePlay) {
-        int cardWidth = 75;
-        int cardHeight = 95;
-        cardPanel.setLayout(new GridLayout(rows, cols, 10, 10));
-        String folderPath = "..\\Assets\\Card";
-        Card cards_Set = new Card(folderPath, cardWidth, cardHeight,this);
-        cards_Set.shuffleCards();
-        ArrayList<Card> shuffledCard = cards_Set.getShuffledCards();
-        for (Card card : shuffledCard) {
-                String backCardPath = card.getBackCardImagePath(folderPath);
-                ImageButton cardIcon = new ImageButton(backCardPath, null, cardWidth, cardHeight);
-                cardIcon.addActionListener(e -> card.handleCardClick(cardIcon, cardWidth, cardHeight, flippedCards, flippedButtons,context));
-                cardPanel.add(cardIcon);
-        }
-        
-        cardPanel.setOpaque(false);
-        cardPanel.setBorder(BorderFactory.createEmptyBorder(75, 40, 40, 50));
-        
-        if (currentState != GameState.START) {
-            gamePlay.setOpaque(false);
-            gamePlay.add(Box.createHorizontalGlue());
-            gamePlay.add(cardPanel);
-        } 
-        else {
-            cardPanel.revalidate();
-            cardPanel.repaint();
-        }
+
+    private JPanel createPanelWithIconAndLabel(ImageComponent icon, JLabel label) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        panel.setOpaque(false);
+        panel.add(icon);
+        panel.add(label);
+        return panel;
     }
     
+    private void setLabelStyle(JLabel label) {
+        label.setFont(MainFont);
+        label.setForeground(Color.WHITE);
+    }
+
     public void resetCardUI() {
         matchCount = 0;
         flippedCards.clear();
         flippedButtons.clear();
         cardPanel.removeAll();
+        stageManager.resetToFirstStage();
+        initializeStage(stageManager.getCurrentStage());
         setupGameUI(cardPanel);
         cardPanel.revalidate();
         cardPanel.repaint();
         overlayPanel.revalidate();
         overlayPanel.repaint();
     }
-    
-    public void HPBarCheck(){
-        updateTimer = new Timer(200, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                    updateHealthBars();
-                    updateStatusLabels(character);
-                    HPCheck(); 
-                    if (enemies.getHP() <= 0 || character.getHP() <= 0) { 
-                        ((Timer) e.getSource()).stop();
-                        return;
-                    }
+
+    public void HPBarCheck() {
+        updateTimer = new Timer(200, e -> {
+            fightingManager.updateHealthBars();
+            updateStatusLabels();
+            HPCheck();
+            
+            if (fightingManager.getEnemies().getHP() <= 0 || 
+                fightingManager.getCharacter().getHP() <= 0) {
+                ((Timer) e.getSource()).stop();
             }
         });
         updateTimer.start();
     }
-    public void HPCheck() {
-        Timer hpCheckTimer = new Timer(200, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean playerAlive = character.getHP() > 0;
-                boolean monsterAlive = enemies.getHP() > 0;
 
-                if (!playerAlive && gameResult != GameState.LOSE) {
-                    gameResult = GameState.LOSE;
-                    drawScreen();
-                    ((Timer) e.getSource()).stop(); 
-                } 
-                else if (!monsterAlive && gameResult != GameState.WIN) {
+    public void HPCheck() {
+        Timer hpCheckTimer = new Timer(200, e -> {
+            Player player = fightingManager.getCharacter();
+            Monster monster = fightingManager.getEnemies();
+            
+            boolean playerAlive = player.getHP() > 0;
+            boolean monsterAlive = monster.getHP() > 0;
+
+            if (!playerAlive && gameResult != GameState.LOSE) {
+                gameResult = GameState.LOSE;
+                drawScreen();
+                ((Timer) e.getSource()).stop();
+            } else if (!monsterAlive) {
+                if (stageManager.hasNextStage()) {
+                    StageData nextStage = stageManager.moveToNextStage();
+                    initializeStage(nextStage);
+                    resetCardUI();
+                } else {
                     gameResult = GameState.WIN;
                     drawScreen();
-                    ((Timer) e.getSource()).stop(); 
+                    ((Timer) e.getSource()).stop();
                 }
             }
         });
         hpCheckTimer.start();
     }
-
-
-    public void updateStatusLabels(Player player) {
+    private void updateStatusLabels() {
+        Player player = fightingManager.getCharacter();
         atkLabel.setText("ATK: " + player.getATK());
-        hpLabel.setText("HP: " + (player.getHP() < 0 ? 0 : player.getHP()));
+        hpLabel.setText("HP: " + Math.max(0, player.getHP()));
         defLabel.setText("DEF: " + player.getDEF());
         regenLabel.setText("REGEN: " + player.getREGEN());
     }
-    public void updateHealthBars() {
-        playerHealthBar.setValue(character.getHP());
-        monsterHealthBar.setValue(enemies.getHP());
-    }
 
-    public int getcurrentMatch(){
+    public int getcurrentMatch() {
         return matchCount;
     }
     
-    public void setMatch(int n){
+    public void setMatch(int n) {
         this.matchCount = n;
     }
     
-    public int maximumCard(){
+    public int maximumCard() {
         return rows * cols;
     }
-    
-    protected void playSong(){
+   
+    public void playSong() {
         bgMusic.playMusic("..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav");
         bgMusic.setVolume(0.9f);
     }
     
-    protected void stopSong(){
+    public void stopSong() {
         bgMusic.stopMusic();
     }
-    
-    
 }

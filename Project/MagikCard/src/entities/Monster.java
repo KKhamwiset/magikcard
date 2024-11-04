@@ -71,14 +71,14 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     
 
     public static class NormalMonster extends Monster {
-        public NormalMonster(String imagePath, JPanel currentPanel,GameScreen game) {
-            super(imagePath, 1000, 100, 100, 5, currentPanel,game);
+        public NormalMonster(String imagePath, JPanel currentPanel,GameScreen game,int hp,int atk,int def,int regen) {
+            super(imagePath, hp, atk, def, regen, currentPanel,game);
         }
     }
 
     public static class BossMonster extends Monster{
-        public BossMonster(String imagePath, JPanel currentPanel,GameScreen game) {
-            super(imagePath, 2000, 200, 150, 10, currentPanel,game);
+        public BossMonster(String imagePath, JPanel currentPanel,GameScreen game,int hp,int atk,int def,int regen) {
+            super(imagePath, hp, atk, def, regen, currentPanel,game);
         }
     }
 }

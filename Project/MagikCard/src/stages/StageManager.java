@@ -7,26 +7,17 @@ public class StageManager {
     private int currentStageIndex = 0;
     
     public StageManager() {
-        // Initialize stages with different configurations
         stages.add(new StageData(
-            3, 6,  // rows, cols
-            "..\\Assets\\Entities\\monster.png",  // monster image
-            100,   // monster HP
-            10,    // monster ATK
-            5,     // monster DEF
-            "..\\Assets\\Background\\stage1_bg.png",  // background
-            "..\\Music\\stage1_music.wav"  // music
+            3, 6, 
+            "..\\Assets\\Entities\\monster.png",  
+            100,
+            10, 
+            5,
+            1,
+            "..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg", 
+            "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav"
         ));
-        
-        stages.add(new StageData(
-            4, 6,  // More cards in stage 2
-            "..\\Assets\\Entities\\monster2.png",
-            150,   // Stronger monster
-            15,
-            8,
-            "..\\Assets\\Background\\stage2_bg.png",
-            "..\\Music\\stage2_music.wav"
-        ));
+      
         
     }
     
