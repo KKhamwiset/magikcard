@@ -13,30 +13,41 @@ public class FightingPanelManager {
     private Monster enemies;
     private GameScreen gameScreen;
     private JPanel mainContainer;
+    private JPanel playerArea;    // Store panel references
+    private JPanel monsterArea;
     
     public FightingPanelManager(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
         initializePanels();
     }
     
- private void initializePanels() {
+    private void initializePanels() {
         fightingPanel = new JPanel();
-        fightingPanel.setLayout(new BoxLayout(fightingPanel, BoxLayout.X_AXIS));
+        fightingPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 200, 0));  
         fightingPanel.setOpaque(false);
         
-        character = new Player("..\\Assets\\Entities\\player.png", fightingPanel, gameScreen);
+        // Create and store panels
+        playerArea = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        monsterArea = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        playerArea.setOpaque(false);
+        monsterArea.setOpaque(false);
+        
+        character = new Player("..\\Assets\\Entities\\player.png", playerArea, gameScreen);
         
         StageData initialStage = gameScreen.stageManager.getCurrentStage();
         enemies = new Monster.NormalMonster(
             initialStage.getMonsterImagePath(),
-            fightingPanel,
+            monsterArea,
             gameScreen,
             initialStage.getMonsterHP(),
             initialStage.getMonsterATK(),
             initialStage.getMonsterDEF(),
             initialStage.getMonsterREGEN()
         );
-  
+
+        fightingPanel.add(playerArea);
+        fightingPanel.add(monsterArea);
+        
         JPanel healthBarPanel = createHealthBarPanel();
         mainContainer = new JPanel();
         mainContainer.setLayout(new BorderLayout());
@@ -44,6 +55,7 @@ public class FightingPanelManager {
         mainContainer.add(fightingPanel, BorderLayout.CENTER);
         mainContainer.add(healthBarPanel, BorderLayout.SOUTH);
     }
+    
     private JPanel createHealthBarPanel() {
         JPanel healthBarPanel = new JPanel();
         healthBarPanel.setOpaque(false);
@@ -77,23 +89,17 @@ public class FightingPanelManager {
         panel.add(healthBar, BorderLayout.SOUTH);
         return panel;
     }
-    
+ 
     public void updateForNewStage(StageData stageData) {
-        System.out.println("=== Starting Stage Update ===");
         if (fightingPanel != null && gameScreen.currentState != null) {
+
             if (enemies != null) {
-                enemies.stopRegeneration();
+                enemies.cleanup();
             }
-            fightingPanel.removeAll();
-            character.recreateVisual(fightingPanel);
-            System.out.println("Creating new monster with stats:");
-            System.out.println("HP: " + stageData.getMonsterHP());
-            System.out.println("ATK: " + stageData.getMonsterATK());
-            System.out.println("DEF: " + stageData.getMonsterDEF());
 
             enemies = new Monster.NormalMonster(
                 stageData.getMonsterImagePath(),
-                fightingPanel,
+                monsterArea,
                 gameScreen,
                 stageData.getMonsterHP(),
                 stageData.getMonsterATK(),
@@ -101,10 +107,17 @@ public class FightingPanelManager {
                 stageData.getMonsterREGEN()
             );
 
+            System.out.println("Updating health bars");
             monsterHealthBar.setMaximum(enemies.getHP());
             monsterHealthBar.setValue(enemies.getHP());
-            fightingPanel.revalidate();
-            fightingPanel.repaint();
+
+            System.out.println("Refreshing panel");
+            monsterArea.revalidate();
+            monsterArea.repaint();
+        } else {
+            System.out.println("WARNING: Panel or game state is null!");
+            System.out.println("Panel null: " + (fightingPanel == null));
+            System.out.println("Game state null: " + (gameScreen.currentState == null));
         }
         System.out.println("=== Stage Update Complete ===");
     }

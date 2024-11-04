@@ -10,13 +10,22 @@ import java.io.IOException;
 public class BackgroundPanel extends JPanel {
     private BufferedImage backgroundImage;
     public BackgroundPanel(String imagePath) {
+        loadImage(imagePath);
+    }
+    
+    public void updateBackground(String newImagePath) {
+        loadImage(newImagePath);
+        repaint(); 
+    }
+    
+    public void loadImage(String imagePath) {
         try {
             backgroundImage = ImageIO.read(new File(imagePath));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

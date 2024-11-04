@@ -16,6 +16,9 @@ class topFrame extends BackgroundPanel {
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(1200, 350));
     }
+    public void changeBackground(String newImagePath) {
+            updateBackground(newImagePath);
+    }
 }
 
 class bottomRightFrame extends BackgroundPanel {
@@ -72,7 +75,7 @@ public class GameScreen extends JPanel {
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1200, 800));
-
+        
 
         JPanel mainFrame = new JPanel();
         mainFrame.setLayout(new BoxLayout(mainFrame, BoxLayout.Y_AXIS));

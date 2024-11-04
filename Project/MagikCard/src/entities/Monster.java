@@ -7,15 +7,44 @@ import magikcard.ImageComponent;
 
 public class Monster extends EntitiesDetails implements MonsterAction {
     private Timer regenTimer;
-    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanel,GameScreen game) {
+    private ImageComponent monsterModel;
+    private JPanel currentPanel;
+    
+    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanelD, GameScreen game) {
+        this.currentPanel = currentPanelD;
         this.MAXHP = maxhp;
         this.HP = MAXHP;   
         this.ATK = atk;
         this.DEF = def;
         this.REGEN = regen; 
-        ImageComponent monsterModel = new ImageComponent(imagePath, 200, 175,( currentPanel.getWidth() * 2 ) + 150, (currentPanel.getHeight() / 2) + 20);
-        currentPanel.add(monsterModel);
+        createVisual(imagePath, currentPanel);
         regenHP(game);
+    }
+    
+    private void createVisual(String imagePath, JPanel panel) {
+        if (monsterModel != null) {
+            panel.remove(monsterModel);
+        }
+
+        monsterModel = new ImageComponent(imagePath, 200, 175, 0, 0);
+        panel.add(monsterModel);
+        monsterModel.setVisible(true);
+        
+        System.out.println("Monster visual created with dimensions:");
+        System.out.println("Width: " + monsterModel.getWidth());
+        System.out.println("Height: " + monsterModel.getHeight());
+        
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    public void cleanup() {
+        if (monsterModel != null && currentPanel != null) {
+            currentPanel.remove(monsterModel);
+            currentPanel.revalidate();
+            currentPanel.repaint();
+        }
+        stopRegeneration();
     }
 
     @Override
