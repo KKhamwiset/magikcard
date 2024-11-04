@@ -143,20 +143,23 @@ public class Card {
                                     ArrayList<ImageButton> flippedButtons, int width, int height) {
       if (isComparing) return;
       isComparing = true;
-      Timer timer = new Timer(200, e -> {
-          Card firstCard = flippedCards.get(0);
-          Card secondCard = flippedCards.get(1);
-          if (firstCard.isMatch(secondCard)) {
-              context.getPlayer().Attack(context.getCurrentMonster());
-              context.getCurrentGame().setMatch(context.getCurrentGame().getcurrentMatch() + 1);
-              checkAllCardsMatchCondition(context);
-          } else {
-              flipCardsBack(firstCard, secondCard, flippedButtons, width, height);    
-              context.getCurrentMonster().Attack(context.getPlayer());
+      Timer timer = new Timer(200,  new ActionListener(){
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Card firstCard = flippedCards.get(0);
+            Card secondCard = flippedCards.get(1);
+            if (firstCard.isMatch(secondCard)) {
+                context.getPlayer().Attack(context.getCurrentMonster());
+                context.getCurrentGame().setMatch(context.getCurrentGame().getcurrentMatch() + 1);
+                checkAllCardsMatchCondition(context);
+            } else {
+                flipCardsBack(firstCard, secondCard, flippedButtons, width, height);    
+                context.getCurrentMonster().Attack(context.getPlayer());
+            }
+            flippedCards.clear();
+            flippedButtons.clear();
+            isComparing = false; 
           }
-          flippedCards.clear();
-          flippedButtons.clear();
-          isComparing = false; 
       });
       timer.setRepeats(false);
       timer.start();
