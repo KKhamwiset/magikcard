@@ -13,7 +13,7 @@ public class FightingPanelManager {
     private Monster enemies;
     private GameScreen gameScreen;
     private JPanel mainContainer;
-    private JPanel playerArea;    // Store panel references
+    private JPanel playerArea;    
     private JPanel monsterArea;
     
     public FightingPanelManager(GameScreen gameScreen) {
@@ -26,7 +26,6 @@ public class FightingPanelManager {
         fightingPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 200, 0));  
         fightingPanel.setOpaque(false);
         
-        // Create and store panels
         playerArea = new JPanel(new FlowLayout(FlowLayout.LEFT));
         monsterArea = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         playerArea.setOpaque(false);
@@ -107,19 +106,12 @@ public class FightingPanelManager {
                 stageData.getMonsterREGEN()
             );
 
-            System.out.println("Updating health bars");
             monsterHealthBar.setMaximum(enemies.getHP());
             monsterHealthBar.setValue(enemies.getHP());
 
-            System.out.println("Refreshing panel");
             monsterArea.revalidate();
             monsterArea.repaint();
-        } else {
-            System.out.println("WARNING: Panel or game state is null!");
-            System.out.println("Panel null: " + (fightingPanel == null));
-            System.out.println("Game state null: " + (gameScreen.currentState == null));
         }
-        System.out.println("=== Stage Update Complete ===");
     }
 
     public void updateHealthBars() {

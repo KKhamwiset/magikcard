@@ -11,17 +11,20 @@ import java.awt.event.*;
 import java.util.ArrayList;
 
 class topFrame extends BackgroundPanel {
+
     public topFrame() {
         super("..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg");
         this.setLayout(new BorderLayout());
         this.setPreferredSize(new Dimension(1200, 350));
     }
+
     public void changeBackground(String newImagePath) {
-            updateBackground(newImagePath);
+        updateBackground(newImagePath);
     }
 }
 
 class bottomRightFrame extends BackgroundPanel {
+
     public bottomRightFrame() {
         super("..\\Assets\\Background\\cardBord.png");
         this.setPreferredSize(new Dimension(600, 450));
@@ -29,6 +32,7 @@ class bottomRightFrame extends BackgroundPanel {
 }
 
 class bottomLeftFrame extends BackgroundPanel {
+
     public bottomLeftFrame() {
         super("..\\Assets\\Background\\7966815.jpg");
         this.setPreferredSize(new Dimension(600, 450));
@@ -36,6 +40,7 @@ class bottomLeftFrame extends BackgroundPanel {
 }
 
 class bottomFrame extends BackgroundPanel {
+
     public bottomFrame() {
         super("..\\Assets\\Background\\mainBG.png");
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -43,6 +48,7 @@ class bottomFrame extends BackgroundPanel {
 }
 
 public class GameScreen extends JPanel {
+
     private int matchCount = 0;
     private Game game;
     public StageManager stageManager;
@@ -61,8 +67,8 @@ public class GameScreen extends JPanel {
     public GameState gameResult = null;
     public GameState currentState;
     public GameContext context;
-    public int rows = 3;
-    public int cols = 6;
+    public int rows;
+    public int cols;
     public ArrayList<Card> flippedCards = new ArrayList<>();
     public ArrayList<ImageButton> flippedButtons = new ArrayList<>();
 
@@ -75,14 +81,12 @@ public class GameScreen extends JPanel {
 
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1200, 800));
-        
 
         JPanel mainFrame = new JPanel();
         mainFrame.setLayout(new BoxLayout(mainFrame, BoxLayout.Y_AXIS));
 
         BackgroundPanel gameRender = new topFrame();
         gameRender.setLayout(new BoxLayout(gameRender, BoxLayout.Y_AXIS));
-
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
@@ -94,7 +98,6 @@ public class GameScreen extends JPanel {
         buttonPanel.add(backButton);
         gameRender.add(buttonPanel, BorderLayout.NORTH);
 
-
         BackgroundPanel bottomPanel = new bottomFrame();
         BackgroundPanel gamePlay = new bottomRightFrame();
         statusPanel = new bottomLeftFrame();
@@ -105,7 +108,6 @@ public class GameScreen extends JPanel {
         setupStatusUI(statusPanel);
         initializeStage(stageManager.getCurrentStage());
         context = new GameContext(fightingManager.getCharacter(), fightingManager.getEnemies(), this);
-
 
         bottomPanel.add(statusPanel);
         bottomPanel.add(gamePlay);
@@ -124,7 +126,6 @@ public class GameScreen extends JPanel {
         HPBarCheck();
     }
 
-
     private void createOverlayPanel() {
         overlayPanel = new JPanel() {
             @Override
@@ -141,15 +142,15 @@ public class GameScreen extends JPanel {
         overlayPanel.setVisible(false);
         overlayPanel.setBackground(new Color(0, 0, 0, 0));
         overlayPanel.setLayout(new BoxLayout(overlayPanel, BoxLayout.Y_AXIS));
-    
+
         JPanel labelPanel = new JPanel();
         labelPanel.setOpaque(false);
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
-    
+
         JLabel messageLabel = new JLabel("", SwingConstants.CENTER);
         messageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         JLabel messageLabel2 = new JLabel("", SwingConstants.CENTER);
-        messageLabel2.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        messageLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         labelPanel.add(messageLabel);
         labelPanel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -159,18 +160,18 @@ public class GameScreen extends JPanel {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-    
+
         ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
             bgMusic.stopMusic();
             resetCardUI();
             game.switchToMainMenu(this);
         }, 60, 60);
-    
+
         ImageButton restartButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\restart.png", e -> {
             bgMusic.stopMusic();
             game.restartGameScreen(this);
         }, 60, 60);
-    
+
         buttonPanel.add(backButton);
         buttonPanel.add(Box.createRigidArea(new Dimension(50, 0)));
         buttonPanel.add(restartButton);
@@ -182,7 +183,7 @@ public class GameScreen extends JPanel {
         overlayPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         overlayPanel.add(buttonPanel);
         overlayPanel.add(Box.createVerticalGlue());
-    
+
         overlayPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -190,7 +191,7 @@ public class GameScreen extends JPanel {
             }
         });
     }
-    
+
     public void showOverlay(boolean win) {
         JPanel outerJLabel = (JPanel) overlayPanel.getComponent(2);
         JLabel messageLabel = (JLabel) outerJLabel.getComponent(0);
@@ -202,11 +203,11 @@ public class GameScreen extends JPanel {
         messageLabel2.setForeground(Color.WHITE);
 
         if (win) {
-            overlayPanel.setBackground(new Color(10, 255, 10, 60)); 
+            overlayPanel.setBackground(new Color(10, 255, 10, 60));
             messageLabel.setText("You Win!!!!");
             messageLabel2.setText("Congratulations!");
         } else {
-            overlayPanel.setBackground(new Color(255, 10, 10, 60)); 
+            overlayPanel.setBackground(new Color(255, 10, 10, 60));
             messageLabel.setText("You Lose!");
             messageLabel2.setText("Better luck next time!");
         }
@@ -235,22 +236,26 @@ public class GameScreen extends JPanel {
     private void setupGameUI(JPanel gamePlay) {
         int cardWidth = 75;
         int cardHeight = 95;
+        this.rows = 3;
+        int availableWidth = gamePlay.getWidth() - 80; 
+        cols = Math.max(4, availableWidth / (cardWidth + 10));
+
         cardPanel.setLayout(new GridLayout(rows, cols, 10, 10));
         String folderPath = "..\\Assets\\Card";
         Card cards_Set = new Card(folderPath, cardWidth, cardHeight, this);
         cards_Set.shuffleCards();
-        
+
         for (Card card : cards_Set.getShuffledCards()) {
             String backCardPath = card.getBackCardImagePath(folderPath);
             ImageButton cardIcon = new ImageButton(backCardPath, null, cardWidth, cardHeight);
-            cardIcon.addActionListener(e -> card.handleCardClick(cardIcon, cardWidth, cardHeight, 
-                flippedCards, flippedButtons, context));
+            cardIcon.addActionListener(e -> card.handleCardClick(cardIcon, cardWidth, cardHeight,
+                    flippedCards, flippedButtons, context));
             cardPanel.add(cardIcon);
         }
-        
+
         cardPanel.setOpaque(false);
         cardPanel.setBorder(BorderFactory.createEmptyBorder(75, 40, 40, 50));
-        
+
         if (currentState != GameState.START) {
             gamePlay.setOpaque(false);
             gamePlay.add(Box.createHorizontalGlue());
@@ -264,24 +269,24 @@ public class GameScreen extends JPanel {
     private void setupStatusUI(JPanel status) {
         Player player = fightingManager.getCharacter();
         status.setLayout(new BoxLayout(status, BoxLayout.Y_AXIS));
-        
+
         int IconWidth = 30;
         int IconHeight = 30;
         ImageComponent ATK = new ImageComponent("..\\Assets\\Image\\Icon\\sword_9742884.png", IconWidth, IconHeight);
         ImageComponent HP = new ImageComponent("..\\Assets\\Image\\Icon\\healthcare_16433864.png", IconWidth, IconHeight);
         ImageComponent DEF = new ImageComponent("..\\Assets\\Image\\Icon\\shield_1825342.png", IconWidth, IconHeight);
         ImageComponent REGEN = new ImageComponent("..\\Assets\\Image\\Icon\\healthcare_9224842.png", IconWidth, IconHeight);
-        
+
         atkLabel = new JLabel("ATK: " + player.getATK());
         hpLabel = new JLabel("HP: " + player.getHP());
         defLabel = new JLabel("DEF: " + player.getDEF());
         regenLabel = new JLabel("REGEN: " + player.getREGEN());
-        
+
         setLabelStyle(atkLabel);
         setLabelStyle(hpLabel);
         setLabelStyle(defLabel);
         setLabelStyle(regenLabel);
-        
+
         JPanel iconPanel = new JPanel();
         iconPanel.setLayout(new BoxLayout(iconPanel, BoxLayout.Y_AXIS));
         iconPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -290,7 +295,7 @@ public class GameScreen extends JPanel {
         iconPanel.add(createPanelWithIconAndLabel(DEF, defLabel));
         iconPanel.add(createPanelWithIconAndLabel(REGEN, regenLabel));
         iconPanel.setOpaque(false);
-        
+
         status.add(Box.createVerticalGlue());
         status.add(iconPanel);
         status.add(Box.createVerticalGlue());
@@ -304,7 +309,7 @@ public class GameScreen extends JPanel {
         panel.add(label);
         return panel;
     }
-    
+
     private void setLabelStyle(JLabel label) {
         label.setFont(MainFont);
         label.setForeground(Color.WHITE);
@@ -315,6 +320,11 @@ public class GameScreen extends JPanel {
         flippedCards.clear();
         flippedButtons.clear();
         cardPanel.removeAll();
+
+        StageData currentStage = stageManager.getCurrentStage();
+        this.rows = currentStage.getRows();
+        this.cols = currentStage.getCols();
+
         setupGameUI(cardPanel);
         cardPanel.revalidate();
         cardPanel.repaint();
@@ -328,7 +338,7 @@ public class GameScreen extends JPanel {
             updateStatusLabels();
             checkGameState();
 
-            if (gameResult != null) { 
+            if (gameResult != null) {
                 ((Timer) e.getSource()).stop();
             }
         });
@@ -344,16 +354,20 @@ public class GameScreen extends JPanel {
 
         if (!playerAlive && gameResult != GameState.LOSE) {
             System.out.println("PLAYER DIED - GAME OVER");
-            monster.stopRegeneration(); 
+            monster.stopRegeneration();
             gameResult = GameState.LOSE;
             drawScreen();
-        } 
-        else if (!monsterAlive) {
+        } else if (!monsterAlive) {
             monster.stopRegeneration();
             if (stageManager.hasNextStage()) {
                 System.out.println("MONSTER DIED - NEXT STAGE");
                 StageData nextStage = stageManager.moveToNextStage();
                 initializeStage(nextStage);
+                cardPanel.removeAll();
+                setupGameUI(cardPanel);
+                cardPanel.revalidate();
+                cardPanel.repaint();
+
                 monster = fightingManager.getEnemies();
                 context.setNewMonster(monster);
             } else {
@@ -363,6 +377,7 @@ public class GameScreen extends JPanel {
             }
         }
     }
+
     private void updateStatusLabels() {
         Player player = fightingManager.getCharacter();
         atkLabel.setText("ATK: " + player.getATK());
@@ -374,13 +389,14 @@ public class GameScreen extends JPanel {
     public int getcurrentMatch() {
         return matchCount;
     }
-    
+
     public void setMatch(int n) {
         this.matchCount = n;
     }
-    
+
     public int maximumCard() {
-        return rows * cols;
+        StageData currentStage = stageManager.getCurrentStage();
+        return currentStage.getRows() * currentStage.getCols();
     }
-   
+
 }
