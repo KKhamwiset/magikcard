@@ -17,10 +17,8 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.REGEN = 5;
         this.X = 150;
         this.Y = (currentPanel.getHeight() / 2) + 20;
-        
-        SwingUtilities.invokeLater(() -> {
-            createVisual(currentPanel);
-        });
+       
+        createVisual(currentPanel);
         regenHP(game);
     }
 
@@ -31,10 +29,10 @@ public class Player extends EntitiesDetails implements PlayerAction {
 
         playerModel = new ImageComponent(
             PLAYER_IMAGE,
-            125,    // width
-            175,    // height
-            0,      // Let layout handle x position
-            0       // Let layout handle y position
+            125,   
+            175,   
+            0,     
+            0      
         );
         
         panel.add(playerModel);
@@ -53,7 +51,6 @@ public class Player extends EntitiesDetails implements PlayerAction {
         createVisual(panel);
     }
     
-    // Rest of the methods remain the same...
     @Override
     public void setHP(int newHP) {
         this.HP = newHP;
