@@ -26,7 +26,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.MAXHP = 1000;
         this.HP = MAXHP;
         this.DEF = 100;
-        this.ATK = 50;
+        this.ATK = 1000;
         this.REGEN = 5;
         this.X = PLAYER_X;
         this.Y = PLAYER_Y;

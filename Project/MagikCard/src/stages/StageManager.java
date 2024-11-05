@@ -14,7 +14,7 @@ public class StageManager {
                 3, 2,
                 "..\\Assets\\Entities\\monster.png",
                 50,
-                10,
+                10000,
                 5,
                 1,
                 "..\\Assets\\Background\\stage1.png",

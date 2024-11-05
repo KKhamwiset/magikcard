@@ -259,8 +259,12 @@ public class GameScreen extends JPanel {
         for (Card card : cards_Set.getShuffledCards()) {
             String backCardPath = card.getBackCardImagePath(folderPath);
             ImageButton cardIcon = new ImageButton(backCardPath, null, cardWidth, cardHeight);
-            cardIcon.addActionListener(e -> card.handleCardClick(cardIcon, cardWidth, cardHeight,
-                    flippedCards, flippedButtons, context));
+            cardIcon.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e){
+                    card.handleCardClick(cardIcon, cardWidth, cardHeight,flippedCards, flippedButtons, context);
+                }
+            });
             cardPanel.add(cardIcon);
         }
 
