@@ -363,6 +363,7 @@ public class GameScreen extends JPanel {
             if (stageManager.hasNextStage()) {
                 System.out.println("MONSTER DIED - NEXT STAGE");
                 StageData nextStage = stageManager.moveToNextStage();
+                setMatch(0);
                 gameRender.changeBackground(nextStage.getBackgroundPath());
                 initializeStage(nextStage);
                 cardPanel.removeAll();
