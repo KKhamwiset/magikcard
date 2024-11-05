@@ -377,13 +377,14 @@ public class GameScreen extends JPanel {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         int currentHP = monster.getHP();
-                        if (currentHP > -20) { 
-                            monster.setHP(currentHP - 2);
+                        if (currentHP > 1) { 
                             fightingManager.updateHealthBars();
                         } else {
                             ((Timer) e.getSource()).stop();
                             StageData nextStage = stageManager.moveToNextStage();
                             setMatch(0);
+                            flippedCards.clear();
+                            flippedButtons.clear();
                             gameRender.changeBackground(nextStage.getBackgroundPath());
                             initializeStage(nextStage);
                             cardPanel.removeAll();

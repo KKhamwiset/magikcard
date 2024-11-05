@@ -122,7 +122,7 @@ public class FightingPanelManager {
             );
         }
     }
-
+    
     public void updateHealthBars() {
         if (playerHealthBar != null && monsterHealthBar != null) {
             SwingUtilities.invokeLater(() -> {

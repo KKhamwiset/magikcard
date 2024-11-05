@@ -57,8 +57,6 @@ public class ImageButton extends JButton {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        addMouseListener(new MouseAdapter() {
-        });
     }
     
     @Override

@@ -41,6 +41,28 @@ public class ImageComponent extends JComponent {
         }
     }
 
+    public void setImage(String imagePath, int width, int height) {
+        try {
+            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+            BufferedImage scaledImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics g = scaledImage.createGraphics();
+            g.drawImage(originalImage, 0, 0, width, height, null);
+            g.dispose();
+
+            this.image = scaledImage;
+            this.width = width;
+            this.height = height;
+
+            this.setPreferredSize(new Dimension(width, height));
+            this.revalidate();
+            this.repaint();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

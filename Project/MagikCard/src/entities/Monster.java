@@ -14,7 +14,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     private JPanel currentPanel;
     private JPanel damageIndicator;
     private boolean isAttacking = false;
-    private  int ATTACK_DISTANCE = 70;
+    private  int ATTACK_DISTANCE = 100;
     private int originalX;
     private final int MONSTER_X = 825;
     private final int MONSTER_Y = 45;
