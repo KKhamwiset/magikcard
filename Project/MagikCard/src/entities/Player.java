@@ -98,11 +98,9 @@ public void Attack(Monster monster) {
         Container container = playerModel.getParent();
         Rectangle originalBounds = container.getBounds();
         int startX = originalBounds.x;
-
         attackAnimationTimer = new Timer(16, new ActionListener() {
             int steps = 0;
             boolean forward = true;
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (forward) {
@@ -113,7 +111,6 @@ public void Attack(Monster monster) {
                             originalBounds.height
                     );
                     steps++;
-
                     if (steps >= 20) {
                         forward = false;
                         playerModel.setImage(PLAYER_IMAGE_ATTACK, 125, 175);
@@ -146,7 +143,6 @@ public void Attack(Monster monster) {
                         ((Timer) e.getSource()).stop();
                     }
                 }
-
                 container.setPreferredSize(new Dimension(125, 175));
                 container.revalidate();
                 container.repaint();
