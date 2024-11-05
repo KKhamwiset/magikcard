@@ -12,10 +12,10 @@ import java.util.ArrayList;
 
 class topFrame extends BackgroundPanel {
 
-    public topFrame() {
-        super("..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg");
+    public topFrame(StageData data) {
+        super(data.getBackgroundPath());
         this.setLayout(null);
-        this.setPreferredSize(new Dimension(1200, 350));
+        this.setPreferredSize(new Dimension(1201, 350));
     }
 
     public void changeBackground(String newImagePath) {
@@ -113,28 +113,30 @@ public class GameScreen extends JPanel {
         currentState = GameState.START;
         HPBarCheck();
     }
+
     private void initializeTopSection() {
-        gameRender = new topFrame();
+        gameRender = new topFrame(stageManager.getCurrentStage());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanel.setOpaque(false);
-        ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", 
-            e -> {
-                bgMusic.stopMusic();
-                resetCardUI();
-                game.switchToMainMenu(this);
-            }, 60, 60);
+        ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png",
+                e -> {
+                    bgMusic.stopMusic();
+                    resetCardUI();
+                    game.switchToMainMenu(this);
+                }, 60, 60);
         buttonPanel.add(backButton);
         buttonPanel.setBounds(10, 10, 100, 70);
         gameRender.add(buttonPanel);
         JPanel fightingContainer = fightingManager.getMainContainer();
         fightingContainer.setBounds(
-            0,  
-            70,
-            1200, 
-            280
+                0,
+                70,
+                1200,
+                280
         );
         gameRender.add(fightingContainer);
     }
+
     private void createOverlayPanel() {
         overlayPanel = new JPanel() {
             @Override
@@ -246,7 +248,7 @@ public class GameScreen extends JPanel {
         int cardWidth = 75;
         int cardHeight = 95;
         this.rows = 3;
-        int availableWidth = gamePlay.getWidth() - 80; 
+        int availableWidth = gamePlay.getWidth() - 80;
         cols = Math.max(4, availableWidth / (cardWidth + 10));
 
         cardPanel.setLayout(new GridLayout(rows, cols, 10, 10));
@@ -342,7 +344,7 @@ public class GameScreen extends JPanel {
     }
 
     public void HPBarCheck() {
-        updateTimer = new Timer(200, e -> {
+        updateTimer = new Timer(100, e -> {
             fightingManager.updateHealthBars();
             updateStatusLabels();
             checkGameState();
@@ -369,18 +371,32 @@ public class GameScreen extends JPanel {
         } else if (!monsterAlive) {
             monster.stopRegeneration();
             if (stageManager.hasNextStage()) {
-                System.out.println("MONSTER DIED - NEXT STAGE");
-                StageData nextStage = stageManager.moveToNextStage();
-                setMatch(0);
-                gameRender.changeBackground(nextStage.getBackgroundPath());
-                initializeStage(nextStage);
-                cardPanel.removeAll();
-                setupGameUI(cardPanel);
-                cardPanel.revalidate();
-                cardPanel.repaint();
+                System.out.println("MONSTER DIED - SHOWING DEATH ANIMATION");
+                Timer deathTimer = new Timer(50, null);
+                deathTimer.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int currentHP = monster.getHP();
+                        if (currentHP > -20) { 
+                            monster.setHP(currentHP - 2);
+                            fightingManager.updateHealthBars();
+                        } else {
+                            ((Timer) e.getSource()).stop();
+                            StageData nextStage = stageManager.moveToNextStage();
+                            setMatch(0);
+                            gameRender.changeBackground(nextStage.getBackgroundPath());
+                            initializeStage(nextStage);
+                            cardPanel.removeAll();
+                            setupGameUI(cardPanel);
+                            cardPanel.revalidate();
+                            cardPanel.repaint();
 
-                monster = fightingManager.getEnemies();
-                context.setNewMonster(monster);
+                            Monster newMonster = fightingManager.getEnemies();
+                            context.setNewMonster(newMonster);
+                        }
+                    }
+                });
+                deathTimer.start();
             } else {
                 System.out.println("ALL STAGES COMPLETE - VICTORY");
                 gameResult = GameState.WIN;
