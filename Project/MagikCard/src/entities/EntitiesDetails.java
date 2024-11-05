@@ -14,6 +14,9 @@ public abstract class EntitiesDetails{
     public int getDEF() { return this.DEF; }
     public int getATK() { return this.ATK; }
     public int getREGEN() { return this.REGEN; }
+    public int getMAXHP() {return this.MAXHP;}
+    public int getX() { return X; }
+    public int getY() { return Y; }
     public abstract void setHP(int newHP);
     public abstract void setATK(int newATK);
     public abstract void setDEF(int newDEF);

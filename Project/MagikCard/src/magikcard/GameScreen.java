@@ -14,7 +14,7 @@ class topFrame extends BackgroundPanel {
 
     public topFrame() {
         super("..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg");
-        this.setLayout(new BorderLayout());
+        this.setLayout(null);
         this.setPreferredSize(new Dimension(1200, 350));
     }
 
@@ -86,28 +86,15 @@ public class GameScreen extends JPanel {
         JPanel mainFrame = new JPanel();
         mainFrame.setLayout(new BoxLayout(mainFrame, BoxLayout.Y_AXIS));
 
-        gameRender = new topFrame();
-        gameRender.setLayout(new BoxLayout(gameRender, BoxLayout.Y_AXIS));
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", e -> {
-            bgMusic.stopMusic();
-            resetCardUI();
-            game.switchToMainMenu(this);
-        }, 60, 60);
-        buttonPanel.setOpaque(false);
-        buttonPanel.add(backButton);
-        gameRender.add(buttonPanel, BorderLayout.NORTH);
-
         BackgroundPanel bottomPanel = new bottomFrame();
         BackgroundPanel gamePlay = new bottomRightFrame();
         statusPanel = new bottomLeftFrame();
         cardPanel = new JPanel();
 
-        gameRender.add(fightingManager.getMainContainer(), BorderLayout.CENTER);
         setupGameUI(gamePlay);
         setupStatusUI(statusPanel);
         initializeStage(stageManager.getCurrentStage());
+        initializeTopSection();
         context = new GameContext(fightingManager.getCharacter(), fightingManager.getEnemies(), this);
 
         bottomPanel.add(statusPanel);
@@ -126,7 +113,28 @@ public class GameScreen extends JPanel {
         currentState = GameState.START;
         HPBarCheck();
     }
-
+    private void initializeTopSection() {
+        gameRender = new topFrame();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.setOpaque(false);
+        ImageButton backButton = new ImageButton("..\\Assets\\Button\\ButtonOverLay\\back.png", 
+            e -> {
+                bgMusic.stopMusic();
+                resetCardUI();
+                game.switchToMainMenu(this);
+            }, 60, 60);
+        buttonPanel.add(backButton);
+        buttonPanel.setBounds(10, 10, 100, 70);
+        gameRender.add(buttonPanel);
+        JPanel fightingContainer = fightingManager.getMainContainer();
+        fightingContainer.setBounds(
+            0,  
+            70,
+            1200, 
+            280
+        );
+        gameRender.add(fightingContainer);
+    }
     private void createOverlayPanel() {
         overlayPanel = new JPanel() {
             @Override

@@ -12,18 +12,24 @@ public class Player extends EntitiesDetails implements PlayerAction {
     private ImageComponent playerModel;
     private JPanel currentPanel;
     private JPanel damageIndicator;
+    private Timer attackAnimationTimer;
+    private boolean isAttacking = false;
     private static final String PLAYER_IMAGE = "..\\Assets\\Entities\\player.png";
+    private static final int ATTACK_DISTANCE = 70;
+    private final int PLAYER_X = 150;
+    private final int PLAYER_Y = 50;
+    private int baseX = 0;
 
     public Player(JPanel currentPanel, GameScreen game) {
         this.currentPanel = currentPanel;
         this.MAXHP = 1000;
         this.HP = MAXHP;
         this.DEF = 100;
-        this.ATK = 10;
+        this.ATK = 1000;
         this.REGEN = 5;
-        this.X = 150;
-        this.Y = (currentPanel.getHeight() / 2) + 20;
-
+        this.X = PLAYER_X;
+        this.Y = PLAYER_Y;
+        System.out.println("Player Panel Height : " + currentPanel.getHeight());
         createVisual(currentPanel);
         regenHP(game);
     }
@@ -33,6 +39,14 @@ public class Player extends EntitiesDetails implements PlayerAction {
             panel.remove(playerModel);
         }
 
+        JPanel containerPanel = new JPanel(null);
+        containerPanel.setPreferredSize(new Dimension(125, 175));
+        containerPanel.setMinimumSize(new Dimension(125, 175));
+        containerPanel.setMaximumSize(new Dimension(125, 175));
+        containerPanel.setSize(125, 175);
+        containerPanel.setOpaque(true);
+
+
         playerModel = new ImageComponent(
                 PLAYER_IMAGE,
                 125,
@@ -41,51 +55,98 @@ public class Player extends EntitiesDetails implements PlayerAction {
                 0
         );
 
-        panel.add(playerModel);
+        playerModel.setBounds(0, 0, 125, 175);
         playerModel.setVisible(true);
+
+        containerPanel.add(playerModel);
+        containerPanel.setVisible(true);
+        containerPanel.setOpaque(false);
+        panel.add(containerPanel);
+
+        containerPanel.setBounds(X, Y, 125, 175);
+
+        playerModel.revalidate();
+        playerModel.repaint();
+        containerPanel.revalidate();
+        containerPanel.repaint();
         panel.revalidate();
         panel.repaint();
 
-        System.out.println("Player visual created");
+        baseX = containerPanel.getX();
+
     }
 
     public void recreateVisual(JPanel panel) {
+        if (attackAnimationTimer != null && attackAnimationTimer.isRunning()) {
+            attackAnimationTimer.stop();
+        }
         this.currentPanel = panel;
         if (playerModel != null) {
-            currentPanel.remove(playerModel);
+            Container parent = playerModel.getParent();
+            if (parent != null) {
+                currentPanel.remove(parent);
+            }
         }
         createVisual(panel);
     }
 
     @Override
-    public void setHP(int newHP) {
-        this.HP = newHP;
-        System.out.println("Setting HP to: " + newHP);
-    }
-
-    @Override
-    public void setATK(int newATK) {
-        this.ATK = newATK;
-        System.out.println("Setting ATK to: " + newATK);
-    }
-
-    @Override
-    public void setDEF(int newDEF) {
-        this.DEF = newDEF;
-        System.out.println("Setting DEF to: " + newDEF);
-    }
-
-    @Override
-    public void setREGEN(int newREGEN) {
-        this.REGEN = newREGEN;
-        System.out.println("Setting REGEN to: " + newREGEN);
-    }
-
-    @Override
     public void Attack(Monster monster) {
-        monster.setHP(monster.getHP() - this.ATK);
-        monster.takingDamage();
-        System.out.println("Player is attacking!");
+        if (!isAttacking) {
+            isAttacking = true;
+            Container container = playerModel.getParent();
+            Rectangle originalBounds = container.getBounds();
+            int startX = originalBounds.x;
+
+            attackAnimationTimer = new Timer(16, new ActionListener() {
+                int steps = 0;
+                boolean forward = true;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (forward) {
+                        container.setBounds(
+                                startX + (steps * 5),
+                                originalBounds.y,
+                                originalBounds.width,
+                                originalBounds.height
+                        );
+                        steps++;
+
+                        if (steps >= 20) {
+                            forward = false;
+                            steps = 0;
+                            monster.setHP(monster.getHP() - ATK);
+                            monster.takingDamage();
+                        }
+                    } else {
+                        container.setBounds(
+                                startX + ((20 - steps) * 5),
+                                originalBounds.y,
+                                originalBounds.width,
+                                originalBounds.height
+                        );
+                        steps++;
+
+                        if (steps >= 20) {
+                            container.setBounds(originalBounds);
+                            isAttacking = false;
+                            ((Timer) e.getSource()).stop();
+                        }
+                    }
+
+                    container.setPreferredSize(new Dimension(125, 175));
+                    container.revalidate();
+                    container.repaint();
+                    currentPanel.revalidate();
+                    currentPanel.repaint();
+
+                    System.out.println("Container position: " + container.getX() + ", " + container.getY());
+                }
+            });
+
+            attackAnimationTimer.start();
+        }
     }
 
     @Override
@@ -133,6 +194,30 @@ public class Player extends EntitiesDetails implements PlayerAction {
             }
         });
         regenHP.start();
+    }
+
+    @Override
+    public void setHP(int newHP) {
+        this.HP = newHP;
+        System.out.println("Setting HP to: " + newHP);
+    }
+
+    @Override
+    public void setATK(int newATK) {
+        this.ATK = newATK;
+        System.out.println("Setting ATK to: " + newATK);
+    }
+
+    @Override
+    public void setDEF(int newDEF) {
+        this.DEF = newDEF;
+        System.out.println("Setting DEF to: " + newDEF);
+    }
+
+    @Override
+    public void setREGEN(int newREGEN) {
+        this.REGEN = newREGEN;
+        System.out.println("Setting REGEN to: " + newREGEN);
     }
 
     @Override

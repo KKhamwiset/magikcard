@@ -1,53 +1,163 @@
 package entities;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
+import java.awt.*;
 import magikcard.GameScreen;
 import magikcard.ImageComponent;
 
 public class Monster extends EntitiesDetails implements MonsterAction {
     private Timer regenTimer;
+    private Timer attackAnimationTimer;
     private ImageComponent monsterModel;
     private JPanel currentPanel;
-    private JPanel damageIndicator; 
-    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanelD, GameScreen game) {
-        this.currentPanel = currentPanelD;
+    private JPanel damageIndicator;
+    private boolean isAttacking = false;
+    private  int ATTACK_DISTANCE = 70;
+    private int originalX;
+    private final int MONSTER_X = 825;
+    private final int MONSTER_Y = 45;
+    public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanel, GameScreen game) {
+        this.currentPanel = currentPanel;
         this.MAXHP = maxhp;
-        this.HP = MAXHP;   
+        this.HP = MAXHP;
         this.ATK = atk;
         this.DEF = def;
-        this.REGEN = regen; 
+        this.REGEN = regen;
+        this.X = MONSTER_X; 
+        this.Y = MONSTER_Y;
+        this.originalX = this.X;
         createVisual(imagePath, currentPanel);
         regenHP(game);
     }
-    
+
     private void createVisual(String imagePath, JPanel panel) {
         if (monsterModel != null) {
-            panel.remove(monsterModel);
+            Container parent = monsterModel.getParent();
+            if (parent != null) {
+                panel.remove(parent);
+            }
         }
 
-        monsterModel = new ImageComponent(imagePath, 200, 175, 0, 0);
-        panel.add(monsterModel);
+        JPanel containerPanel = new JPanel(null);
+        containerPanel.setPreferredSize(new Dimension(200, 175));
+        containerPanel.setOpaque(false);
+        monsterModel = new ImageComponent(
+                imagePath,
+                200,
+                175,
+                0,
+                0
+        );
+
+        monsterModel.setBounds(0, 0, 200, 175);
         monsterModel.setVisible(true);
-        
-        System.out.println("Monster visual created with dimensions:");
-        System.out.println("Width: " + monsterModel.getWidth());
-        System.out.println("Height: " + monsterModel.getHeight());
-        
+
+
+        containerPanel.add(monsterModel);
+        containerPanel.setVisible(true);
+        containerPanel.setBounds(X, Y, 200, 175);
+        panel.add(containerPanel);
+        monsterModel.revalidate();
+        monsterModel.repaint();
+        containerPanel.revalidate();
+        containerPanel.repaint();
         panel.revalidate();
         panel.repaint();
+
+        System.out.println("Monster visual created at: " + X + ", " + Y);
+    }
+
+    @Override
+    public void Attack(Player player) {
+        if (!isAttacking) {
+            isAttacking = true;
+            Container container = monsterModel.getParent();
+            int startX = container.getX();
+
+            attackAnimationTimer = new Timer(16, new ActionListener() {
+                int steps = 0;
+                boolean forward = true;
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (forward) {
+                        container.setLocation(startX - (steps * 5), container.getY());
+                        steps++;
+
+                        if (steps >= 10) {
+                            forward = false;
+                            player.setHP(player.getHP() - ATK);
+                            player.takingDamage();
+                        }
+                    } else {
+                        container.setLocation(startX - ((20 - steps) * 5), container.getY());
+                        steps++;
+
+                        if (steps >= 20) {
+                            container.setLocation(startX, container.getY());
+                            isAttacking = false;
+                            ((Timer) e.getSource()).stop();
+                        }
+                    }
+
+                    monsterModel.repaint();
+                    container.repaint();
+                    currentPanel.revalidate();
+                    currentPanel.repaint();
+                }
+            });
+
+            attackAnimationTimer.start();
+            System.out.println("Monster is attacking!");
+        }
     }
 
     public void cleanup() {
-        if (monsterModel != null && currentPanel != null) {
-            currentPanel.remove(monsterModel);
-            currentPanel.revalidate();
-            currentPanel.repaint();
+        if (monsterModel != null) {
+            Container parent = monsterModel.getParent();
+            if (parent != null) {
+                currentPanel.remove(parent);
+                currentPanel.revalidate();
+                currentPanel.repaint();
+            }
         }
         stopRegeneration();
+        if (attackAnimationTimer != null && attackAnimationTimer.isRunning()) {
+            attackAnimationTimer.stop();
+        }
+    }
+
+    @Override
+    public void takingDamage() {
+        System.out.println("Monster is taking damage!");
+
+        if (damageIndicator == null) {
+            damageIndicator = createDamageIndicator();
+            monsterModel.add(damageIndicator);
+        }
+
+        damageIndicator.setBounds(0, 0, monsterModel.getWidth(), monsterModel.getHeight());
+        damageIndicator.setVisible(true);
+
+        monsterModel.revalidate();
+        monsterModel.repaint();
+        Timer damageTimer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                damageIndicator.setVisible(false);
+                ((Timer) e.getSource()).stop();
+            }
+        });
+        damageTimer.setRepeats(false);
+        damageTimer.start();
+    }
+
+    private JPanel createDamageIndicator() {
+        JPanel indicator = new JPanel();
+        indicator.setOpaque(true);
+        indicator.setBackground(new Color(255, 0, 0, 100));
+        return indicator;
     }
 
     @Override
@@ -72,43 +182,6 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     public void setREGEN(int newREGEN) {
         this.REGEN = newREGEN;
         System.out.println("Set Monster REGEN : " + newREGEN);
-    }
-
-    @Override
-        public void Attack(Player player) {
-            System.out.println("Monster is attacking!");
-            player.takingDamage();
-            player.setHP(player.getHP() - this.ATK); 
-        }
-    private JPanel createDamageIndicator() {
-        JPanel indicator = new JPanel();
-        indicator.setOpaque(true);
-        indicator.setBackground(new Color(255, 0, 0, 100));
-        return indicator;
-    }
-    @Override
-    public void takingDamage() {
-        System.out.println("Player is taking damage!");
-
-        if (damageIndicator == null) {
-            damageIndicator = createDamageIndicator();
-            monsterModel.add(damageIndicator);
-        }
-
-        damageIndicator.setBounds(0, 0, monsterModel.getWidth(), monsterModel.getHeight());
-        damageIndicator.setVisible(true);
-
-        monsterModel.revalidate();
-        monsterModel.repaint();
-        Timer damageTimer = new Timer(100, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                damageIndicator.setVisible(false);
-                ((Timer) e.getSource()).stop();
-            }
-        });
-        damageTimer.setRepeats(false);
-        damageTimer.start();
     }
     public void stopRegeneration() {
         if (regenTimer != null && regenTimer.isRunning()) {
@@ -138,7 +211,6 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         regenTimer.start();
         System.out.println("Started monster regeneration timer");
     }
-    
 
     public static class NormalMonster extends Monster {
         public NormalMonster(String imagePath, JPanel currentPanel,GameScreen game,int hp,int atk,int def,int regen) {

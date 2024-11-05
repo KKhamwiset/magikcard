@@ -13,7 +13,7 @@ public class StageManager {
         stages.add(new StageData(
                 3, 2,
                 "..\\Assets\\Entities\\monster.png",
-                100,
+                50,
                 10,
                 5,
                 1,
