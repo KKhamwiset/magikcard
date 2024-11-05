@@ -111,7 +111,7 @@ public class GameScreen extends JPanel {
         this.add(layeredPane, BorderLayout.CENTER);
 
         currentState = GameState.START;
-        HPBarCheck();
+        HPCheck();
     }
 
     private void initializeTopSection() {
@@ -343,7 +343,7 @@ public class GameScreen extends JPanel {
         overlayPanel.repaint();
     }
 
-    public void HPBarCheck() {
+    public void HPCheck() {
         updateTimer = new Timer(100, e -> {
             fightingManager.updateHealthBars();
             updateStatusLabels();
