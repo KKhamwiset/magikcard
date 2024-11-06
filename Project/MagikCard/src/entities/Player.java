@@ -13,7 +13,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
     private JPanel currentPanel;
     private JPanel damageIndicator;
     private Timer attackAnimationTimer;
-    private boolean isAttacking = false;
+    public boolean isAttacking = false;
     private static final String PLAYER_IMAGE = "..\\Assets\\Entities\\player.png";
     private static final String PLAYER_IMAGE_ATTACK = "..\\Assets\\Entities\\player_attack.png";
     private static final int ATTACK_DISTANCE = 70;
@@ -25,8 +25,8 @@ public class Player extends EntitiesDetails implements PlayerAction {
         this.currentPanel = currentPanel;
         this.MAXHP = 1000;
         this.HP = MAXHP;
-        this.DEF = 100;
-        this.ATK = 1000;
+        this.DEF = 50;
+        this.ATK = 100;
         this.REGEN = 5;
         this.X = PLAYER_X;
         this.Y = PLAYER_Y;
@@ -46,7 +46,6 @@ public class Player extends EntitiesDetails implements PlayerAction {
         containerPanel.setMaximumSize(new Dimension(125, 175));
         containerPanel.setSize(125, 175);
         containerPanel.setOpaque(true);
-
 
         playerModel = new ImageComponent(
                 PLAYER_IMAGE,
@@ -72,7 +71,6 @@ public class Player extends EntitiesDetails implements PlayerAction {
         containerPanel.repaint();
         panel.revalidate();
         panel.repaint();
-
         baseX = containerPanel.getX();
 
     }
@@ -91,32 +89,43 @@ public class Player extends EntitiesDetails implements PlayerAction {
         createVisual(panel);
     }
 
-@Override
-public void Attack(Monster monster) {
-    if (!isAttacking) {
+    @Override
+    public void Attack(Monster monster) {
+        if (isAttacking) {
+            if (attackAnimationTimer != null) {
+                attackAnimationTimer.stop();
+            }
+            Container container = playerModel.getParent();
+            Rectangle originalBounds = container.getBounds();
+            container.setBounds(PLAYER_X, originalBounds.y, originalBounds.width, originalBounds.height);
+            playerModel.setImage(PLAYER_IMAGE, 125, 175);
+        }
+
         isAttacking = true;
         Container container = playerModel.getParent();
         Rectangle originalBounds = container.getBounds();
         int startX = originalBounds.x;
-        attackAnimationTimer = new Timer(16, new ActionListener() {
+
+        attackAnimationTimer = new Timer(8, new ActionListener() { 
             int steps = 0;
             boolean forward = true;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (forward) {
                     container.setBounds(
-                            startX + (steps * 5),
+                            startX + (steps * 8),
                             originalBounds.y,
                             originalBounds.width,
                             originalBounds.height
                     );
                     steps++;
-                    if (steps >= 20) {
+                    if (steps >= 15) { 
                         forward = false;
                         playerModel.setImage(PLAYER_IMAGE_ATTACK, 125, 175);
-                        monster.setHP(monster.getHP() - ATK);
+                        monster.setHP(monster.getHP() - (ATK - ((int) (monster.getDEF() * 0.10))));
                         monster.takingDamage();
-                        Timer attackImageTimer = new Timer(200, new ActionListener() {
+                        Timer attackImageTimer = new Timer(100, new ActionListener() {  
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 playerModel.setImage(PLAYER_IMAGE, 125, 175);
@@ -125,19 +134,17 @@ public void Attack(Monster monster) {
                         });
                         attackImageTimer.setRepeats(false);
                         attackImageTimer.start();
-
                         steps = 0;
                     }
                 } else {
                     container.setBounds(
-                            startX + ((20 - steps) * 5),
+                            startX + ((15 - steps) * 8), 
                             originalBounds.y,
                             originalBounds.width,
                             originalBounds.height
                     );
                     steps++;
-
-                    if (steps >= 20) {
+                    if (steps >= 15) { 
                         container.setBounds(originalBounds);
                         isAttacking = false;
                         ((Timer) e.getSource()).stop();
@@ -148,14 +155,10 @@ public void Attack(Monster monster) {
                 container.repaint();
                 currentPanel.revalidate();
                 currentPanel.repaint();
-
-                System.out.println("Container position: " + container.getX() + ", " + container.getY());
             }
         });
-
         attackAnimationTimer.start();
     }
-}
 
     @Override
     public void takingDamage() {
@@ -230,9 +233,10 @@ public void Attack(Monster monster) {
 
     @Override
     public void increaseStats() {
-        this.setHP(this.HP + 1000);
-        this.setATK(this.ATK + 100);
-        this.setDEF(this.DEF + 20);
-        this.setREGEN(this.REGEN + 10);
+        this.MAXHP = this.MAXHP + ((int) (this.MAXHP * 0.15));
+        this.setHP(Math.min((this.HP + (int) (this.MAXHP * 0.07)), this.MAXHP));
+        this.setATK(this.ATK + ((int) (this.ATK * 0.10)));
+        this.setDEF(this.DEF + ((int) (this.DEF * 0.10)));
+        this.setREGEN(Math.max(1, this.REGEN + ((int) (Math.sqrt(this.ATK + this.DEF) * 0.5))));
     }
 }

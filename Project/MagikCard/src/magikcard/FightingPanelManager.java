@@ -127,6 +127,7 @@ public class FightingPanelManager {
         if (playerHealthBar != null && monsterHealthBar != null) {
             SwingUtilities.invokeLater(() -> {
                 int playerHP = Math.max(0, character.getHP());
+                playerHealthBar.setMaximum(character.getMAXHP());
                 playerHealthBar.setValue(playerHP);
                 playerHealthBar.setString(playerHP + "/" + character.getMAXHP());
 

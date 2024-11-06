@@ -18,6 +18,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     private int originalX;
     private final int MONSTER_X = 825;
     private final int MONSTER_Y = 45;
+    private GameScreen game;
     public Monster(String imagePath, int maxhp, int atk, int def, int regen, JPanel currentPanel, GameScreen game) {
         this.currentPanel = currentPanel;
         this.MAXHP = maxhp;
@@ -28,6 +29,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         this.X = MONSTER_X; 
         this.Y = MONSTER_Y;
         this.originalX = this.X;
+        this.game = game;
         createVisual(imagePath, currentPanel);
         regenHP(game);
     }
@@ -71,46 +73,49 @@ public class Monster extends EntitiesDetails implements MonsterAction {
 
     @Override
     public void Attack(Player player) {
-        if (!isAttacking) {
-            isAttacking = true;
+        if (isAttacking) {
+            if (attackAnimationTimer != null) {
+                attackAnimationTimer.stop();
+            }
             Container container = monsterModel.getParent();
-            int startX = container.getX();
-
-            attackAnimationTimer = new Timer(16, new ActionListener() {
-                int steps = 0;
-                boolean forward = true;
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (forward) {
-                        container.setLocation(startX - (steps * 5), container.getY());
-                        steps++;
-
-                        if (steps >= 10) {
-                            forward = false;
-                            player.setHP(player.getHP() - ATK);
-                            player.takingDamage();
-                        }
-                    } else {
-                        container.setLocation(startX - ((20 - steps) * 5), container.getY());
-                        steps++;
-
-                        if (steps >= 20) {
-                            container.setLocation(startX, container.getY());
-                            isAttacking = false;
-                            ((Timer) e.getSource()).stop();
-                        }
-                    }
-
-                    monsterModel.repaint();
-                    container.repaint();
-                    currentPanel.revalidate();
-                    currentPanel.repaint();
-                }
-            });
-
-            attackAnimationTimer.start();
-            System.out.println("Monster is attacking!");
+            container.setLocation(originalX, container.getY());
         }
+
+        isAttacking = true;
+        Container container = monsterModel.getParent();
+        int startX = container.getX();
+
+        attackAnimationTimer = new Timer(8, new ActionListener() {
+            int steps = 0;
+            boolean forward = true;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (forward) {
+                    container.setLocation(startX - (steps * 8), container.getY()); 
+                    steps++;
+                    if (steps >= 15) {  
+                        forward = false;
+                        player.setHP(player.getHP() - atkDamage(player));
+                        player.takingDamage();
+                        steps = 0;
+                    }
+                } else {
+                    container.setLocation(startX - ((15 - steps) * 8), container.getY()); 
+                    steps++;
+                    if (steps >= 15) {
+                        container.setLocation(startX, container.getY());
+                        isAttacking = false;
+                        ((Timer) e.getSource()).stop();
+                    }
+                }
+                monsterModel.repaint();
+                container.repaint();
+                currentPanel.revalidate();
+                currentPanel.repaint();
+            }
+        });
+        attackAnimationTimer.start();
+        System.out.println("Monster is attacking!");
     }
 
     public void cleanup() {
@@ -183,6 +188,13 @@ public class Monster extends EntitiesDetails implements MonsterAction {
         this.REGEN = newREGEN;
         System.out.println("Set Monster REGEN : " + newREGEN);
     }
+    public int atkDamage(Player player){
+        int atkDamage = ATK - ((int)(player.getDEF() * 0.20));
+        if (atkDamage < (int)(player.getMAXHP() * 0.10)){
+            atkDamage = (int)(player.getMAXHP() * 0.02);
+        }
+        return atkDamage;
+    }
     public void stopRegeneration() {
         if (regenTimer != null && regenTimer.isRunning()) {
             regenTimer.stop();
@@ -213,14 +225,47 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     }
 
     public static class NormalMonster extends Monster {
-        public NormalMonster(String imagePath, JPanel currentPanel,GameScreen game,int hp,int atk,int def,int regen) {
-            super(imagePath, hp, atk, def, regen, currentPanel,game);
+
+        public NormalMonster(String imagePath, JPanel currentPanel, GameScreen game, int hp, int atk, int def, int regen) {
+            super(imagePath, hp, atk, def, regen, currentPanel, game);
         }
     }
 
-    public static class BossMonster extends Monster{
-        public BossMonster(String imagePath, JPanel currentPanel,GameScreen game,int hp,int atk,int def,int regen) {
-            super(imagePath, hp, atk, def, regen, currentPanel,game);
+    public static class BossMonster extends Monster {
+
+        private Timer continuousDamageTimer;
+
+        public BossMonster(String imagePath, JPanel currentPanel, GameScreen game, int hp, int atk, int def, int regen) {
+            super(imagePath, hp, atk, def, regen, currentPanel, game);
+            if (game.stageManager.getCurrentStage().isFinalStage()) {
+                startContinuousDamage(game);
+            }
+        }
+
+        private void startContinuousDamage(GameScreen gameScreen) {
+            continuousDamageTimer = new Timer(2000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e){        
+                    Player player = gameScreen.context.getPlayer();
+                    if (player.getHP() > -1) {
+                        player.setHP(player.getHP() - 100);
+                        player.takingDamage();
+                    }
+                }
+            });
+            continuousDamageTimer.start();
+        }
+
+        @Override
+        public void cleanup() {
+            super.cleanup();
+            if (continuousDamageTimer != null && continuousDamageTimer.isRunning()) {
+                continuousDamageTimer.stop();
+            }
+        }
+        @Override
+        public int atkDamage(Player player){
+            return ATK;
         }
     }
 }

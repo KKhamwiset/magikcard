@@ -13,33 +13,36 @@ public class StageManager {
         stages.add(new StageData(
                 3, 2,
                 "..\\Assets\\Entities\\monster.png",
-                50,
+                500,
                 100,
-                5,
-                1,
+                10,
+                0,
                 "..\\Assets\\Background\\stage1.png",
-                "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav"
+                "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav",
+                false
         ));
         stages.add(new StageData(
                 3, 4,
                 "..\\Assets\\Entities\\monster2.png",
+                1000,
+                150,
                 100,
                 10,
-                5,
-                1,
                 "..\\Assets\\Background\\stage2.png",
-                "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav"
+                "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav",
+                false
         ));
 
         stages.add(new StageData(
                 3, 6,
                 "..\\Assets\\Entities\\monster3.png",
-                200,
-                10,
-                5,
-                20,
+                2000,
+                250,
+                400,
+                50,
                 "..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg",
-                "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav"
+                "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav",
+                true
         ));
     }
 

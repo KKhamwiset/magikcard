@@ -68,6 +68,7 @@ public class GameScreen extends JPanel {
     public GameState gameResult = null;
     public GameState currentState;
     public GameContext context;
+    private boolean isTransitioning = false;
     public int rows;
     public int cols;
     public ArrayList<Card> flippedCards = new ArrayList<>();
@@ -189,7 +190,6 @@ public class GameScreen extends JPanel {
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         overlayPanel.add(Box.createVerticalGlue());
-        overlayPanel.add(Box.createVerticalGlue());
         overlayPanel.add(labelPanel);
         overlayPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         overlayPanel.add(buttonPanel);
@@ -204,7 +204,7 @@ public class GameScreen extends JPanel {
     }
 
     public void showOverlay(boolean win) {
-        JPanel outerJLabel = (JPanel) overlayPanel.getComponent(2);
+        JPanel outerJLabel = (JPanel) overlayPanel.getComponent(1);
         JLabel messageLabel = (JLabel) outerJLabel.getComponent(0);
         JLabel messageLabel2 = (JLabel) outerJLabel.getComponent(2);
 
@@ -261,8 +261,8 @@ public class GameScreen extends JPanel {
             ImageButton cardIcon = new ImageButton(backCardPath, null, cardWidth, cardHeight);
             cardIcon.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e){
-                    card.handleCardClick(cardIcon, cardWidth, cardHeight,flippedCards, flippedButtons, context);
+                public void actionPerformed(ActionEvent e) {
+                    card.handleCardClick(cardIcon, cardWidth, cardHeight, flippedCards, flippedButtons, context);
                 }
             });
             cardPanel.add(cardIcon);
@@ -363,7 +363,6 @@ public class GameScreen extends JPanel {
     public void checkGameState() {
         Player player = fightingManager.getCharacter();
         Monster monster = fightingManager.getEnemies();
-
         boolean playerAlive = player.getHP() > 0;
         boolean monsterAlive = monster.getHP() > 0;
 
@@ -372,36 +371,46 @@ public class GameScreen extends JPanel {
             monster.stopRegeneration();
             gameResult = GameState.LOSE;
             drawScreen();
-        } else if (!monsterAlive) {
+        } else if (!monsterAlive && !isTransitioning) {
             monster.stopRegeneration();
             if (stageManager.hasNextStage()) {
-                System.out.println("MONSTER DIED - SHOWING DEATH ANIMATION");
-                Timer deathTimer = new Timer(50, null);
-                deathTimer.addActionListener(new ActionListener() {
+                isTransitioning = true;
+                System.out.println("MONSTER DIED - STARTING STAGE TRANSITION");
+                overlayPanel.setBackground(new Color(0, 0, 0, 100));
+                JPanel labelPanel = (JPanel) overlayPanel.getComponent(1);
+                JLabel messageLabel = (JLabel) labelPanel.getComponent(0);
+                JLabel messageLabel2 = (JLabel) labelPanel.getComponent(2);
+                messageLabel.setFont(OverlayFont);
+                messageLabel.setForeground(Color.WHITE);
+                messageLabel2.setFont(OverlayFont);
+                messageLabel2.setForeground(Color.WHITE);
+                messageLabel.setText("Stage Clear!");
+                messageLabel2.setText("");
+                overlayPanel.getComponent(3).setVisible(false);
+                overlayPanel.setVisible(true);
+                Timer stageTransitionTimer = new Timer(1500, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        int currentHP = monster.getHP();
-                        if (currentHP > 1) { 
-                            fightingManager.updateHealthBars();
-                        } else {
-                            ((Timer) e.getSource()).stop();
-                            StageData nextStage = stageManager.moveToNextStage();
-                            setMatch(0);
-                            flippedCards.clear();
-                            flippedButtons.clear();
-                            gameRender.changeBackground(nextStage.getBackgroundPath());
-                            initializeStage(nextStage);
-                            cardPanel.removeAll();
-                            setupGameUI(cardPanel);
-                            cardPanel.revalidate();
-                            cardPanel.repaint();
-
-                            Monster newMonster = fightingManager.getEnemies();
-                            context.setNewMonster(newMonster);
-                        }
+                        overlayPanel.setVisible(false);
+                        overlayPanel.getComponent(3).setVisible(true); 
+                        StageData nextStage = stageManager.moveToNextStage();
+                        setMatch(0);
+                        flippedCards.clear();
+                        flippedButtons.clear();
+                        gameRender.changeBackground(nextStage.getBackgroundPath());
+                        initializeStage(nextStage);
+                        cardPanel.removeAll();
+                        setupGameUI(cardPanel);
+                        cardPanel.revalidate();
+                        cardPanel.repaint();
+                        Monster newMonster = fightingManager.getEnemies();
+                        context.setNewMonster(newMonster);
+                        isTransitioning = false;
+                        ((Timer) e.getSource()).stop();
                     }
                 });
-                deathTimer.start();
+                stageTransitionTimer.setRepeats(false);
+                stageTransitionTimer.start();
             } else {
                 System.out.println("ALL STAGES COMPLETE - VICTORY");
                 gameResult = GameState.WIN;

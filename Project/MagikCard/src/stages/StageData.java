@@ -10,9 +10,11 @@ public class StageData {
     private int monsterREGEN;
     private String backgroundPath;
     private String musicPath;
+    private boolean isFinalStage;
     
     public StageData(int rows, int cols, String monsterImagePath, int monsterHP, 
-                     int monsterATK, int monsterDEF,int monsterRegen, String backgroundPath, String musicPath) {
+                     int monsterATK, int monsterDEF,int monsterRegen, String backgroundPath, String musicPath,
+                     boolean isFinalStage) {
         this.rows = rows;
         this.cols = cols;
         this.monsterImagePath = monsterImagePath;
@@ -22,8 +24,8 @@ public class StageData {
         this.monsterREGEN = monsterRegen;
         this.backgroundPath = backgroundPath;
         this.musicPath = musicPath;
+        this.isFinalStage = isFinalStage;
     }
-    
     public int getRows() { return rows; }
     public int getCols() { return cols; }
     public String getMonsterImagePath() { return monsterImagePath; }
@@ -33,4 +35,5 @@ public class StageData {
     public int getMonsterREGEN() {return monsterREGEN;}
     public String getBackgroundPath() { return backgroundPath; }
     public String getMusicPath() { return musicPath; }
+    public boolean isFinalStage() {return isFinalStage;}
 }

@@ -143,7 +143,7 @@ public class Card {
 
     private void compareFlippedCards(GameContext context, ArrayList<Card> flippedCards,
             ArrayList<ImageButton> flippedButtons, int width, int height) {
-        if (isComparing) {
+        if (isComparing || flippedCards.size() < 2 ) {
             return;
         }
         isComparing = true;
@@ -154,6 +154,7 @@ public class Card {
                 Card secondCard = flippedCards.get(1);
                 if (firstCard.isMatch(secondCard)) {
                     context.getPlayer().Attack(context.getCurrentMonster());
+                    context.getPlayer().increaseStats();
                     context.getCurrentGame().setMatch(context.getCurrentGame().getcurrentMatch() + 1);
                     checkAllCardsMatchCondition(context);
                 } else {
