@@ -91,7 +91,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
                     }
                 } else {
                     monsterModel.setBounds(
-                            startX - ((startX - targetX) - steps * 16),
+                            targetX + (steps * 16),
                             monsterModel.getY(),
                             monsterModel.getWidth(),
                             monsterModel.getHeight()
@@ -100,7 +100,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
 
                     if (monsterModel.getX() >= startX) {
                         monsterModel.setBounds(startX, monsterModel.getY(),
-                                monsterModel.getWidth(), monsterModel.getHeight());
+                        monsterModel.getWidth(), monsterModel.getHeight());
                         isAttacking = false;
                         ((Timer) e.getSource()).stop();
                     }

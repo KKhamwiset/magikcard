@@ -110,7 +110,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
                     }
                 } else {
                     playerModel.setBounds(
-                            startX + ((targetX - startX) - steps * 16),
+                            targetX - (steps * 16),
                             playerModel.getY(),
                             playerModel.getWidth(),
                             playerModel.getHeight()
