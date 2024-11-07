@@ -27,7 +27,7 @@ public class StageManager {
                 1000,
                 150,
                 100,
-                10,
+                25,
                 "..\\Assets\\Background\\stage2.png",
                 "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav",
                 false
@@ -37,9 +37,9 @@ public class StageManager {
                 3, 6,
                 "..\\Assets\\Entities\\monster3.png",
                 2000,
-                250,
-                400,
-                50,
+                200,
+                200,
+                75,
                 "..\\Assets\\Background\\2306.w063.n005.146B.p1.146.jpg",
                 "..\\Music\\Revived Witch OST  - 16 -  Seth Tsui - Frog Chevalier.wav",
                 true

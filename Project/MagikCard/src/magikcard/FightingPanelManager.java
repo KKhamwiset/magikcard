@@ -7,6 +7,7 @@ import entities.Monster;
 import stages.*;
 
 public class FightingPanelManager {
+
     private JPanel fightingPanel;
     private JProgressBar playerHealthBar;
     private JProgressBar monsterHealthBar;
@@ -19,7 +20,7 @@ public class FightingPanelManager {
         this.gameScreen = gameScreen;
         initializePanels();
     }
-    
+
     private void initializePanels() {
         fightingPanel = new JPanel(null) {
             @Override
@@ -91,7 +92,7 @@ public class FightingPanelManager {
 
             monsterHealthBar.setMaximum(enemies.getMAXHP());
             monsterHealthBar.setValue(enemies.getHP());
-            updateHealthBars(); 
+            updateHealthBars();
 
             fightingPanel.revalidate();
             fightingPanel.repaint();
@@ -122,24 +123,21 @@ public class FightingPanelManager {
             );
         }
     }
-    
+
     public void updateHealthBars() {
         if (playerHealthBar != null && monsterHealthBar != null) {
-            SwingUtilities.invokeLater(() -> {
-                int playerHP = Math.max(0, character.getHP());
-                playerHealthBar.setMaximum(character.getMAXHP());
-                playerHealthBar.setValue(playerHP);
-                playerHealthBar.setString(playerHP + "/" + character.getMAXHP());
+            int playerHP = Math.max(0, character.getHP());
+            playerHealthBar.setMaximum(character.getMAXHP());
+            playerHealthBar.setValue(playerHP);
+            playerHealthBar.setString(playerHP + "/" + character.getMAXHP());
 
-                int monsterHP = Math.max(0, enemies.getHP());
-                monsterHealthBar.setValue(monsterHP);
-                monsterHealthBar.setString(monsterHP + "/" + enemies.getMAXHP());
+            int monsterHP = Math.max(0, enemies.getHP());
+            monsterHealthBar.setValue(monsterHP);
+            monsterHealthBar.setString(monsterHP + "/" + enemies.getMAXHP());
 
-
-                healthBarPanel.setVisible(true);
-                healthBarPanel.revalidate();
-                healthBarPanel.repaint();
-            });
+            healthBarPanel.setVisible(true);
+            healthBarPanel.revalidate();
+            healthBarPanel.repaint();
         }
     }
 

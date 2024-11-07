@@ -190,7 +190,7 @@ public class Monster extends EntitiesDetails implements MonsterAction {
     }
     public int atkDamage(Player player){
         int atkDamage = ATK - ((int)(player.getDEF() * 0.20));
-        if (atkDamage < (int)(player.getMAXHP() * 0.10)){
+        if (atkDamage < (int)(player.getMAXHP() * 0.02)){
             atkDamage = (int)(player.getMAXHP() * 0.02);
         }
         return atkDamage;
@@ -247,9 +247,13 @@ public class Monster extends EntitiesDetails implements MonsterAction {
                 @Override
                 public void actionPerformed(ActionEvent e){        
                     Player player = gameScreen.context.getPlayer();
+                    Monster monster = gameScreen.context.getCurrentMonster();
                     if (player.getHP() > -1) {
-                        player.setHP(player.getHP() - 100);
+                        player.setHP(player.getHP() - ((int)(player.getMAXHP() * 0.045)));
                         player.takingDamage();
+                    }
+                    if (monster.getHP() <= 0) {
+                        ((Timer)e.getSource()).stop();
                     }
                 }
             });

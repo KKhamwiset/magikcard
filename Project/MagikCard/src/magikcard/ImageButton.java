@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.awt.event.MouseAdapter;
+
 
 public class ImageButton extends JButton {
 

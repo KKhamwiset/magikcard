@@ -125,7 +125,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
                         playerModel.setImage(PLAYER_IMAGE_ATTACK, 125, 175);
                         monster.setHP(monster.getHP() - (ATK - ((int) (monster.getDEF() * 0.10))));
                         monster.takingDamage();
-                        Timer attackImageTimer = new Timer(100, new ActionListener() {  
+                        Timer attackImageTimer = new Timer(200, new ActionListener() {  
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 playerModel.setImage(PLAYER_IMAGE, 125, 175);

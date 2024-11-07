@@ -391,7 +391,7 @@ public class GameScreen extends JPanel {
                 Timer stageTransitionTimer = new Timer(1500, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        overlayPanel.setVisible(false);
+                        hideOverlay();
                         overlayPanel.getComponent(3).setVisible(true); 
                         StageData nextStage = stageManager.moveToNextStage();
                         setMatch(0);
