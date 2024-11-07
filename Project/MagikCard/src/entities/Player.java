@@ -16,8 +16,7 @@ public class Player extends EntitiesDetails implements PlayerAction {
     public boolean isAttacking = false;
     private static final String PLAYER_IMAGE = "..\\Assets\\Entities\\player.png";
     private static final String PLAYER_IMAGE_ATTACK = "..\\Assets\\Entities\\player_attack.png";
-    private static final int ATTACK_DISTANCE = 70;
-    private final int PLAYER_X = 150;
+    private final int PLAYER_X = 300;
     private final int PLAYER_Y = 50;
     private int baseX = 0;
 
@@ -40,13 +39,6 @@ public class Player extends EntitiesDetails implements PlayerAction {
             panel.remove(playerModel);
         }
 
-        JPanel containerPanel = new JPanel(null);
-        containerPanel.setPreferredSize(new Dimension(125, 175));
-        containerPanel.setMinimumSize(new Dimension(125, 175));
-        containerPanel.setMaximumSize(new Dimension(125, 175));
-        containerPanel.setSize(125, 175);
-        containerPanel.setOpaque(true);
-
         playerModel = new ImageComponent(
                 PLAYER_IMAGE,
                 125,
@@ -55,36 +47,19 @@ public class Player extends EntitiesDetails implements PlayerAction {
                 0
         );
 
-        playerModel.setBounds(0, 0, 125, 175);
+        playerModel.setBounds(PLAYER_X, PLAYER_Y, 125, 175);
         playerModel.setVisible(true);
-
-        containerPanel.add(playerModel);
-        containerPanel.setVisible(true);
-        containerPanel.setOpaque(false);
-        panel.add(containerPanel);
-
-        containerPanel.setBounds(X, Y, 125, 175);
-
         playerModel.revalidate();
         playerModel.repaint();
-        containerPanel.revalidate();
-        containerPanel.repaint();
+        panel.add(playerModel);
         panel.revalidate();
         panel.repaint();
-        baseX = containerPanel.getX();
 
     }
 
     public void recreateVisual(JPanel panel) {
         if (attackAnimationTimer != null && attackAnimationTimer.isRunning()) {
             attackAnimationTimer.stop();
-        }
-        this.currentPanel = panel;
-        if (playerModel != null) {
-            Container parent = playerModel.getParent();
-            if (parent != null) {
-                currentPanel.remove(parent);
-            }
         }
         createVisual(panel);
     }
@@ -95,37 +70,34 @@ public class Player extends EntitiesDetails implements PlayerAction {
             if (attackAnimationTimer != null) {
                 attackAnimationTimer.stop();
             }
-            Container container = playerModel.getParent();
-            Rectangle originalBounds = container.getBounds();
-            container.setBounds(PLAYER_X, originalBounds.y, originalBounds.width, originalBounds.height);
+            playerModel.setBounds(PLAYER_X, playerModel.getY(), playerModel.getWidth(), playerModel.getHeight());
             playerModel.setImage(PLAYER_IMAGE, 125, 175);
         }
 
         isAttacking = true;
-        Container container = playerModel.getParent();
-        Rectangle originalBounds = container.getBounds();
-        int startX = originalBounds.x;
+        int startX = playerModel.getX();
+        int targetX = monster.getX() - 100; 
 
-        attackAnimationTimer = new Timer(8, new ActionListener() { 
+        attackAnimationTimer = new Timer(12, new ActionListener() {
             int steps = 0;
             boolean forward = true;
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (forward) {
-                    container.setBounds(
-                            startX + (steps * 8),
-                            originalBounds.y,
-                            originalBounds.width,
-                            originalBounds.height
+                    playerModel.setBounds(
+                            startX + (steps * 16),
+                            playerModel.getY(),
+                            playerModel.getWidth(),
+                            playerModel.getHeight()
                     );
                     steps++;
-                    if (steps >= 15) { 
+                    if (playerModel.getX() >= targetX) {
                         forward = false;
                         playerModel.setImage(PLAYER_IMAGE_ATTACK, 125, 175);
                         monster.setHP(monster.getHP() - (ATK - ((int) (monster.getDEF() * 0.10))));
                         monster.takingDamage();
-                        Timer attackImageTimer = new Timer(200, new ActionListener() {  
+                        Timer attackImageTimer = new Timer(200, new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 playerModel.setImage(PLAYER_IMAGE, 125, 175);
@@ -137,22 +109,24 @@ public class Player extends EntitiesDetails implements PlayerAction {
                         steps = 0;
                     }
                 } else {
-                    container.setBounds(
-                            startX + ((15 - steps) * 8), 
-                            originalBounds.y,
-                            originalBounds.width,
-                            originalBounds.height
+                    playerModel.setBounds(
+                            startX + ((targetX - startX) - steps * 16),
+                            playerModel.getY(),
+                            playerModel.getWidth(),
+                            playerModel.getHeight()
                     );
                     steps++;
-                    if (steps >= 15) { 
-                        container.setBounds(originalBounds);
+
+                    if (playerModel.getX() <= startX) {
+                        playerModel.setBounds(startX, playerModel.getY(),
+                                playerModel.getWidth(), playerModel.getHeight());
                         isAttacking = false;
                         ((Timer) e.getSource()).stop();
                     }
                 }
-                container.setPreferredSize(new Dimension(125, 175));
-                container.revalidate();
-                container.repaint();
+
+                playerModel.revalidate();
+                playerModel.repaint();
                 currentPanel.revalidate();
                 currentPanel.repaint();
             }
@@ -233,7 +207,11 @@ public class Player extends EntitiesDetails implements PlayerAction {
 
     @Override
     public void increaseStats() {
+        int oldMaxHP = this.MAXHP;
         this.MAXHP = this.MAXHP + ((int) (this.MAXHP * 0.15));
+        if (oldMaxHP == this.HP) {
+            this.setHP(this.MAXHP);
+        }
         this.setHP(Math.min((this.HP + (int) (this.MAXHP * 0.07)), this.MAXHP));
         this.setATK(this.ATK + ((int) (this.ATK * 0.10)));
         this.setDEF(this.DEF + ((int) (this.DEF * 0.10)));

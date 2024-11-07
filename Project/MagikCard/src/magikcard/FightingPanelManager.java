@@ -67,8 +67,6 @@ public class FightingPanelManager {
         healthBar.setForeground(new Color(220, 20, 20));
         healthBar.setBackground(new Color(40, 40, 40));
         healthBar.setPreferredSize(new Dimension(400, 30));
-        healthBar.setMinimumSize(new Dimension(400, 30));
-        healthBar.setMaximumSize(new Dimension(400, 30));
         healthBar.setBorderPainted(true);
         healthBar.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
         healthBar.setFont(new Font("Arial", Font.BOLD, 14));
